@@ -1,0 +1,3 @@
+
+Good Overview of String in Java
+http://www.ntu.edu.sg/home/ehchua/programming/java/j3d_string.html
