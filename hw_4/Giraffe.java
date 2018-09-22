@@ -1,13 +1,9 @@
-public class Giraffe extends Animal implements Herbivore{
+package parallelProject.hw_4;
 
+public class Giraffe extends Animal implements Herbivore {
 
-    public Giraffe(String name, int age) {
-        super(name,age);
-    }
-
-    @Override
-    public String getSpecies() {
-        return "Giraffe";
+    public Giraffe(String name,  String home) {
+        super(name, "Giraffe", home);
     }
 
     @Override
@@ -16,13 +12,7 @@ public class Giraffe extends Animal implements Herbivore{
     }
 
     @Override
-    public int getAge() {
-        return Age;
-    }
-
-
-    @Override
     public void goGraze() {
-
+        System.out.println("I am "+ Name + " going to graze");
     }
 }

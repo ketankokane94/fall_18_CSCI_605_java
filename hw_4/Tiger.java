@@ -1,26 +1,17 @@
+package parallelProject.hw_4;
+
 public class Tiger extends Animal implements Carnivore{
 
-    public Tiger(String name, int age) {
-        super(name,age);
+    public Tiger(String name, String home) {
+        super(name,"Tiger",home);
     }
-
-    @Override
-    public String getSpecies() {
-        return "Tiger";
-    }
-
     @Override
     public String getName() {
         return Name;
     }
 
     @Override
-    public int getAge() {
-        return Age;
-    }
-
-    @Override
     public void goHunt() {
-
+    System.out.println("I am "+ Name + " going to hunt");
     }
 }
