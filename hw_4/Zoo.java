@@ -1,6 +1,7 @@
-package parallelProject.hw_4;
+//package parallelProject.hw_4;
 
 import java.util.Vector;
+import java.lang.Math;
 
 public class Zoo {
     public static void main(String args[]){
@@ -10,16 +11,36 @@ public class Zoo {
         animals.add(new Lion("simba","rochester"));
         animals.add(new Gazelle("Gaza","Herd"));
         animals.add(new Giraffe("GG","Herd"));
+        animals.add(new Bear("Bageera","Cave"));
 
         for (Animal animal: animals){
             System.out.println(animal.whoAreYou());
-            if (animal instanceof Tiger){
-                ((Tiger) animal).goHunt();
+            if(animal.AreYouHungry() == "Yes") {
+                if (animal instanceof Tiger) {
+                    ((Tiger) animal).goHunt();
+                }
+                if (animal instanceof Giraffe) {
+                    ((Giraffe) animal).goGraze();
+                }
+                if (animal instanceof Bear) {
+                    int mood = ((int) ((Math.random()) * 100) % 2);
+                    if (mood == 0) {
+                        ((Bear) animal).goHunt();
+                    } else {
+                        ((Bear) animal).goGraze();
+                    }
+                }
             }
-            if (animal instanceof Giraffe){
-                ((Giraffe) animal).goGraze();
+            else {
+                System.out.println("I am not hungry");
             }
-            System.out.println(animal.goHome());
+            if(animal.AreYouHome() == "No") {
+                System.out.println("I am not home");
+                System.out.println(animal.goHome());
+            }
+            else {
+                System.out.println("I am home");
+            }
         }
     }
 }

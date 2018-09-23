@@ -1,4 +1,4 @@
-package parallelProject.hw_4;
+//package parallelProject.hw_4;
 
 public class Lion extends Animal implements Carnivore{
 

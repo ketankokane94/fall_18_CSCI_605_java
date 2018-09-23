@@ -1,4 +1,4 @@
-package parallelProject.hw_4;
+//package parallelProject.hw_4;
 
 public class Gazelle extends Animal implements Herbivore {
     public Gazelle(String name,  String home) {

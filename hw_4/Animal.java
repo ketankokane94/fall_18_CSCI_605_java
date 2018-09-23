@@ -1,4 +1,4 @@
-package parallelProject.hw_4;
+//package parallelProject.hw_4;
 
 public abstract class Animal {
 
@@ -11,6 +11,12 @@ public abstract class Animal {
         Name = name;
         Species = species;
         Home = home;
+        //TODO: change this new Random().nextInt)(1)
+        int homeStatus = ((int) ((Math.random()) * 100) % 2);
+        if(homeStatus == 1) {
+            AreYouHome = true;
+        }
+        
     }
 
     public String getSpecies() {
@@ -33,6 +39,21 @@ public abstract class Animal {
         return stringBuilder.toString();
     }
     //TODO add go Home
-    public abstract String AreYouHungry();
+    public String AreYouHungry()
+    {
+        int hungerStatus = ((int) ((Math.random()) * 100) % 2);
+        if(hungerStatus == 0)
+            return "No";
+        else
+            return "Yes";
+    }
+
+    public String AreYouHome()
+    {
+        if(!AreYouHome)
+            return "No";
+        else
+            return "Yes";
+    }
 
 }
