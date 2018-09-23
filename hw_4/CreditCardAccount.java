@@ -1,3 +1,12 @@
+/* 
+ * CreditCard.java 
+ * 
+ * Version: 
+ *     1
+ * 
+ * Revisions: 
+ *     1
+ */
 
 public class CreditCardAccount extends LiabilityAccount
 {
@@ -7,6 +16,9 @@ public class CreditCardAccount extends LiabilityAccount
         super(AcountType.CREDIT_CARD, accountHolderName);
     }
 
+    /**
+     * prints the account statement for credit card per month
+     */
     public void printAccountStatementPerMonth(int months){
         StringBuilder sb = new StringBuilder();
         for (int index = 1; index <= months ; index++) {
@@ -20,6 +32,9 @@ public class CreditCardAccount extends LiabilityAccount
 
     }
 
+    /**
+     * calculates and returns the interest of the credit card
+     */
     private double getInterest() {
         double interest = (getMoneyOwed() * 1 * RATE_OF_INTEREST)/100;
         availableCreditLimit -= interest;
