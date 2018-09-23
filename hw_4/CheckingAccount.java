@@ -25,8 +25,12 @@ public class CheckingAccount extends AssetAccount
         setPerTransactionLimit(initialDeposit/2);
     }
 
+    /**
+     * @param amount
+     * @return
+     */
     @Override
-    public boolean creditFromAccount(Double amount){
+    public boolean creditFromAccount(double amount){
     if(amount <= perTransactionLimit){
         return  super.creditFromAccount(amount);
     }
