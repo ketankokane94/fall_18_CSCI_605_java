@@ -1,11 +1,24 @@
 import java.util.Scanner;
 import java.util.Vector;
+/* 
+ * RitBank.java 
+ *  
+ * Version: 
+ *     1
+ * 
+ * Revisions: 
+ *     1
+ */
 public class RitBank {
 
     private static Vector<BankAccount> bankAccounts = new Vector<BankAccount>();
     private String mainMenuMessage = new String();
     Scanner scanner;
 
+    /**
+     *  main method of the class
+     * @param args
+     */
     public static void main(String args[]) {
         RitBank ritBank = new RitBank();
         ritBank.scanner = new Scanner(System.in);
@@ -36,7 +49,9 @@ public class RitBank {
         } while (!choice.equals("exit"));
         ritBank.scanner.close();
     }
-
+/**
+ * calculates the interest for each account based on its type and user entered month
+ */
     private void time() {
         System.out.println("How months should pass?>");
         int months = scanner.nextInt();
@@ -49,8 +64,10 @@ public class RitBank {
         }
         }
     }
-
-    public void displayMenu() {
+/**
+ * displays a menu to the user
+ */
+    private void displayMenu() {
         if (mainMenuMessage.isEmpty()) {
             StringBuilder stringBuilder = new StringBuilder("Enter on of the following commands : \n");
             stringBuilder.append("\ttime - pass certain amount of time\n");
@@ -68,8 +85,11 @@ public class RitBank {
 
 
     }
-
-    public void openAccount() {
+/**
+ * handles the opening of a account
+ * can openn Savings, checking and credit card account
+ */
+    private void openAccount() {
         displayAccountTypeMenu();
         int accountType = scanner.nextInt();
         System.out.println("What is the customer's name ?\n");
@@ -88,6 +108,9 @@ public class RitBank {
         System.out.println();
     }
 
+    /**
+     * asks for user which account is to be opened
+     */
     private void displayAccountTypeMenu() {
         System.out.println("What type of account\n" +
                 "     0 - for savings\n" +
@@ -95,16 +118,20 @@ public class RitBank {
                 "     2 - for credit card?\n");
     }
 
-
-        public BankAccount getAccount(int accountNumber) {
+/**
+ * gets the account with the given account number from the vectors of all the accounts of the bank
+ */
+    private BankAccount getAccount(int accountNumber) {
             for (BankAccount bankAccount:bankAccounts){
                 if(bankAccount.accountNo==accountNumber)
                     return bankAccount;
             }
             return  null;
         }
-
-           public  void closeAccount()
+/**
+ * handles the case of closing the account
+ */
+        private  void closeAccount()
            {
                BankAccount bankAccount = getBankAccount();
                if(bankAccount==null)
@@ -123,8 +150,10 @@ public class RitBank {
                }
 
            }
-
-           public void creditFromAccount()
+/**
+ * allows and handles crediting from different accounts of the bank
+ */
+           private void creditFromAccount()
            {
                BankAccount bankAccount = getBankAccount();
                if(bankAccount!=null ){
@@ -148,13 +177,20 @@ public class RitBank {
                }
            }
 
+           /**
+            * asks users for the account number to do processing on
+            * @return
+            */
     private BankAccount getBankAccount() {
         System.out.println("What is the account number?>");
         int accountNumber = scanner.nextInt();
         return getAccount(accountNumber);
     }
 
-    public void debitIntoAccount() {
+    /**
+     * handles and allows debits into all the types of account in the bank
+     */
+    private void debitIntoAccount() {
             BankAccount bankAccount = getBankAccount();
             if(bankAccount!=null ){
                 System.out.println("How much?>");
@@ -173,7 +209,10 @@ public class RitBank {
             }
         }
 
-    public void printAccountSummary() {
+        /**
+         * gives a detailed report of all the accounts in the bank
+         */
+        private void printAccountSummary() {
 
         StringBuilder stringBuilder = new StringBuilder("BANK SUMMARY\n");
 
