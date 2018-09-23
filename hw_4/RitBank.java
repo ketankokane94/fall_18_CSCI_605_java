@@ -1,183 +1,203 @@
 import java.util.Scanner;
 import java.util.Vector;
-public class RitBank //implements AccountMethods
-{
-    static Vector<BankAccount> bankAccount = new Vector<BankAccount>();
-    public static void main(String args[])
-    {
-        String choice = "";
+public class RitBank {
+
+    private static Vector<BankAccount> bankAccounts = new Vector<BankAccount>();
+    private String mainMenuMessage = new String();
+    Scanner scanner;
+
+    public static void main(String args[]) {
+        RitBank ritBank = new RitBank();
+        ritBank.scanner = new Scanner(System.in);
+        String choice = new String();
         do {
-            displayMenu();
-            Scanner choiceScanner = new Scanner(System.in);
-            choice = choiceScanner.nextLine();
-            switch(choice)
-            {
+            ritBank.displayMenu();
+            choice = ritBank.scanner.next();
+            switch (choice) {
                 case "time":
+                    ritBank.time();
                     break;
                 case "open":
-                    openAcc();
+                    ritBank.openAccount();
                     break;
                 case "close":
-                    closeAccount();
-                    break;
+                    ritBank.closeAccount();
+                   break;
                 case "credit":
-                    creditAccount();
+                     ritBank.creditFromAccount();
                     break;
                 case "debit":
-                    debitAccount();
+                    ritBank.debitIntoAccount();
                     break;
                 case "summary":
-                    printSummary();
+                    ritBank.printAccountSummary();
                     break;
             }
-        }while(!choice.equals("exit"));
+        } while (!choice.equals("exit"));
+        ritBank.scanner.close();
     }
 
-    public static void displayMenu()
-    {
-        System.out.println("Enter on of the following commands : \n" +
-                "\ttime - pass certain amount of time\n" +
-                "\topen - open a new account\n" +
-                "\tclose - close an account\n" +
-                "\tcredit - credit an account\n" +
-                "\tdebit - debit an account\n" +
-                "\tsummary - display current bank accounts\n" +
-                "\texit - exit program\n" +
-                "What do you wanna do?");
+    private void time() {
+        System.out.println("How months should pass?>");
+        int months = scanner.nextInt();
+        for(BankAccount bankAccount: bankAccounts){
+        if(bankAccount instanceof SavingsAccount){
+            System.out.println(bankAccount.accountHolderName+" earned $"+((SavingsAccount) bankAccount).interestAccured(months)+" in interest in "+months+" months. Account Balance is now $"+((SavingsAccount) bankAccount).getAccountBalance());
+        }
+        else if(bankAccount instanceof CreditCardAccount){
+            ((CreditCardAccount) bankAccount).printAccountStatementPerMonth(months);
+        }
+        }
     }
 
-    public static void openAcc()
-    {
-        Scanner inputScanner = new Scanner(System.in);
+    public void displayMenu() {
+        if (mainMenuMessage.isEmpty()) {
+            StringBuilder stringBuilder = new StringBuilder("Enter on of the following commands : \n");
+            stringBuilder.append("\ttime - pass certain amount of time\n");
+            stringBuilder.append("\topen - open a new account\n");
+            stringBuilder.append("\tclose - close an account\n");
+            stringBuilder.append("\tcredit - credit an account\n");
+            stringBuilder.append("\tdebit - debit an account\n");
+            stringBuilder.append("\tsummary - display current bank accounts\n");
+            stringBuilder.append("\texit - exit program\n");
+            stringBuilder.append("What do you wanna do?");
+            mainMenuMessage = stringBuilder.toString();
+
+        }
+        System.out.println(mainMenuMessage);
+
+
+    }
+
+    public void openAccount() {
+        displayAccountTypeMenu();
+        int accountType = scanner.nextInt();
+        System.out.println("What is the customer's name ?\n");
+        String accountHolderName = scanner.next();
+        if (accountType == 0 || accountType == 1) {
+            System.out.println("How much to deposit?\n");
+            double initialDeposit = scanner.nextDouble();
+            if (accountType == 0) {
+                bankAccounts.add(new SavingsAccount(accountHolderName, initialDeposit));
+            } else {
+                bankAccounts.add(new CheckingAccount(accountHolderName, initialDeposit));
+            }
+        } else {
+            bankAccounts.add(new CreditCardAccount(accountHolderName));
+        }
+        System.out.println();
+    }
+
+    private void displayAccountTypeMenu() {
         System.out.println("What type of account\n" +
                 "     0 - for savings\n" +
                 "     1 - for checking\n" +
                 "     2 - for credit card?\n");
-        int type = inputScanner.nextInt();
-        System.out.println("What is the customer's name ?\n");
-        inputScanner = new Scanner(System.in);
-        String holderName = inputScanner.nextLine();
-        if(type == 0 || type == 1) {
-            System.out.println("How much to deposit?\n");
-            inputScanner = new Scanner(System.in);
-            double startingAmount = inputScanner.nextDouble();
-            if(type == 0) {
-                bankAccount.add(new SavingsAccount("SAVINGS", holderName, startingAmount));
-            }
-            else
-            {
-                bankAccount.add(new CheckingAccount("CURRENT", holderName, startingAmount));
-            }
-        }
-        else
-        {
-            bankAccount.add(new CreditCardAccount("CREDIT_CARD", holderName));
-        }
     }
 
-    public static int findAccount(int accNum)
-    {
-        int accIndex = 0;
-        int indexFound = -1;
-        while (accIndex < bankAccount.size())
-        {
-            if(bankAccount.get(accIndex).getAccNo() == accNum)
-            {
-                indexFound = accIndex;
-                break;
-            }
-            accIndex++;
-        }
-        return indexFound;
-    }
 
-    public static void closeAccount()
-    {
-        Scanner inputScanner = new Scanner(System.in);
+        public BankAccount getAccount(int accountNumber) {
+            for (BankAccount bankAccount:bankAccounts){
+                if(bankAccount.accountNo==accountNumber)
+                    return bankAccount;
+            }
+            return  null;
+        }
+
+           public  void closeAccount()
+           {
+               BankAccount bankAccount = getBankAccount();
+               if(bankAccount==null)
+                   System.out.println("No account found with this number");
+               else {
+                   if(bankAccount instanceof AssetAccount ){
+                       System.out.println("Account closed please collect cash: "+ ((AssetAccount) bankAccount).getAccountBalance());
+                       bankAccounts.remove(bankAccount);
+                   }
+                   else if (bankAccount instanceof LiabilityAccount && ((LiabilityAccount) bankAccount).getMoneyOwed()> 0){
+                        System.out.println("To close this account please pay off your outstanding balance of :"+((LiabilityAccount) bankAccount).getMoneyOwed());
+                   }
+                   else {
+                       bankAccounts.remove(bankAccount);
+                   }
+               }
+
+           }
+
+           public void creditFromAccount()
+           {
+               BankAccount bankAccount = getBankAccount();
+               if(bankAccount!=null ){
+                   System.out.println("How much?>");
+                   double amount = scanner.nextDouble();
+                   if( bankAccount instanceof AssetAccount){
+                       ((AssetAccount) bankAccount).creditFromAccount(amount);
+                       System.out.println("amount credited from your account no "+ bankAccount.accountNo + "  new balance  "+((AssetAccount) bankAccount).getAccountBalance());
+                   }
+                   else if (bankAccount!=null && bankAccount instanceof LiabilityAccount){
+                       if(((LiabilityAccount) bankAccount).creditFromAccount(amount)){
+                           System.out.println("amount credited off on your credit card available credit limit is =  "+((LiabilityAccount) bankAccount).availableCreditLimit);
+                       }
+                       else {
+                           System.out.println("Insufficient available credit limit");
+                       }
+                   }
+               }
+               else {
+                   System.out.println("Account does not exist!!");
+               }
+           }
+
+    private BankAccount getBankAccount() {
         System.out.println("What is the account number?>");
-        int accNum = inputScanner.nextInt();
-        int indexFound = findAccount(accNum);
-        if(indexFound == -1)
-        {
-            System.out.println("Account does not exist!");
-        }
-        else
-        {
-            boolean remove = bankAccount.remove(bankAccount.get(indexFound));
-            if(!remove)
-            {
-                System.out.println("Account could not be removed!");
-            }
-        }
+        int accountNumber = scanner.nextInt();
+        return getAccount(accountNumber);
     }
 
-    public static void creditAccount()
-    {
-        Scanner inputScanner = new Scanner(System.in);
-        System.out.println("What is the account number?>");
-        int accNum = inputScanner.nextInt();
-        inputScanner = new Scanner(System.in);
-        System.out.println("How much?>");
-        double amount = inputScanner.nextDouble();
-        int indexFound = findAccount(accNum);
-        if(indexFound == -1)
-        {
-            System.out.println("Account does not exist!!");
-        }
-        else
-        {
-            boolean credit = bankAccount.get(indexFound).credit(amount);
-            if(!credit)
-            {
-                System.out.println("Cannot make this transaction. Insufficient funds!");
+    public void debitIntoAccount() {
+            BankAccount bankAccount = getBankAccount();
+            if(bankAccount!=null ){
+                System.out.println("How much?>");
+                double amount = scanner.nextDouble();
+                if( bankAccount instanceof AssetAccount){
+                    ((AssetAccount) bankAccount).debitIntoAccount(amount);
+                    System.out.println("amount debited to your account no "+ bankAccount.accountNo + "  new balance  "+((AssetAccount) bankAccount).getAccountBalance());
+                }
+                else if (bankAccount!=null && bankAccount instanceof LiabilityAccount){
+                    ((LiabilityAccount) bankAccount).debitIntoAccount(amount);
+                    System.out.println("amount payed off on your credit card available credit limit is =  "+((LiabilityAccount) bankAccount).availableCreditLimit);
+                }
+            }
+            else {
+                System.out.println("Account does not exist!!");
             }
         }
-    }
 
-    public static void debitAccount()
-    {
-        Scanner inputScanner = new Scanner(System.in);
-        System.out.println("What is the account number?>");
-        int accNum = inputScanner.nextInt();
-        inputScanner = new Scanner(System.in);
-        System.out.println("How much?>");
-        double amount = inputScanner.nextDouble();
-        int indexFound = findAccount(accNum);
-        if(indexFound == -1)
-        {
-            System.out.println("Account does not exist!!");
-        }
-        else
-        {
-            boolean debit = bankAccount.get(indexFound).debit(amount);
-        }
-    }
+    public void printAccountSummary() {
 
-    public static void printSummary()
-    {
-        System.out.println("BANK SUMMARY");
-        int accIndex = 0;
-        while(accIndex < bankAccount.size())
-        {
-            System.out.print("Account Number : " + bankAccount.get(accIndex).getAccNo() + "\n");
-            System.out.print("\tAccount Type : " + bankAccount.get(accIndex).getAccType() + "\n");
-            System.out.print("\t\tCustomer Name : " + bankAccount.get(accIndex).getHolderName() + "\n");
-            if(bankAccount.get(accIndex) instanceof SavingsAccount) {
-                SavingsAccount savingsAccount = (SavingsAccount) ((AssetAccount)bankAccount.get(accIndex));
-                System.out.print("\t\tAccount Balance : $" + savingsAccount.getBalance() + "\n");
-            }
-            else if(bankAccount.get(accIndex) instanceof CheckingAccount) {
-                CheckingAccount checkingAccount = (CheckingAccount) ((AssetAccount)bankAccount.get(accIndex));
-                System.out.print("\t\tAccount Balance : $" + checkingAccount.getBalance() + "\n");
-            }
-            else
-            {
-                CreditCardAccount creditCardAccount = (CreditCardAccount) ((LiabilityAccount)bankAccount.get(accIndex));
-                System.out.print("\t\tAmount Owed : $" + creditCardAccount.getAmountOwed() + "\n");
-            }
-            accIndex++;
-        }
-    }
+        StringBuilder stringBuilder = new StringBuilder("BANK SUMMARY\n");
 
+        for (BankAccount bankAccount : bankAccounts) {
+
+            stringBuilder.append("Account Number : ").append(bankAccount.accountNo).append("\n");
+            stringBuilder.append("\t Account Type : ").append(bankAccount.accountType).append("\n");
+            stringBuilder.append("\t\tCustomer Name : ").append(bankAccount.accountHolderName).append("\n");
+
+            if (bankAccount instanceof AssetAccount) {
+                Double accountBalance = ((AssetAccount) bankAccount).getAccountBalance();
+                stringBuilder.append("\t\tAccount Balance : $").append(String.format("%.2f", accountBalance)).append("\n");
+            }
+            else if(bankAccount instanceof LiabilityAccount){
+                double moneyOwed =  ((LiabilityAccount) bankAccount).getMoneyOwed();
+                stringBuilder.append("\t\tAmount Owed : $" + String.format("%.2f",moneyOwed) + "\n");
+            }
+            System.out.println(stringBuilder.toString());
+            stringBuilder.setLength(0);
+        }
+
+    }
 }
+
+
+
 

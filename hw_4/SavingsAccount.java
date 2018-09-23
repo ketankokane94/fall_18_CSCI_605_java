@@ -1,48 +1,20 @@
+
 public class SavingsAccount extends AssetAccount
 {
-    int accNo;
-    String accType;
-    String holderName;
-    double balance = 0;
-    public SavingsAccount(String accType, String holderName, double startingAmount)
-    {
-        accNo = 1500000;
-        this.accType = accType;
-        this.holderName = holderName;
-        balance += startingAmount;
+    private  double RATE_OF_INTEREST = 0.03;
+    int monthlyAllowedTransactions ;
+    public SavingsAccount(String accountHolderName,Double initialDeposit) {
+        super(AcountType.SAVINGS, accountHolderName,initialDeposit);
+        setMonthlyAllowedTransactions(8);
+    }
 
+    public void setMonthlyAllowedTransactions(int monthlyAllowedTransactions) {
+        this.monthlyAllowedTransactions = monthlyAllowedTransactions;
     }
-    public int getAccNo()
-    {
-        return accNo;
-    }
-    public String getAccType()
-    {
-        return accType;
-    }
-    public String getHolderName()
-    {
-        return holderName;
-    }
-    public double getBalance()
-    {
-        return balance;
-    }
-    public boolean credit(double amount)
-    {
-        if(balance < amount)
-        {
-            return false;
-        }
-        else
-        {
-            balance -= amount;
-            return true;
-        }
-    }
-    public boolean debit(double amount)
-    {
-        balance += amount;
-        return true;
+
+    public Double interestAccured(int months){
+        double interest = (accountBalance * months * RATE_OF_INTEREST)/100;
+        accountBalance += interest;
+        return interest;
     }
 }

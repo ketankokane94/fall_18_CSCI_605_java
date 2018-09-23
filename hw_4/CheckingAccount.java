@@ -1,48 +1,22 @@
 public class CheckingAccount extends AssetAccount
 {
-    int accNo;
-    String accType;
-    String holderName;
-    double balance = 0;
-    public CheckingAccount(String accType, String holderName, double startingAmount)
-    {
-        accNo = 1400000;
-        this.accType = accType;
-        this.holderName = holderName;
-        balance += startingAmount;
 
+    public void setPerTransactionLimit(Double perTransactionLimit) {
+        this.perTransactionLimit = perTransactionLimit;
     }
-    public int getAccNo()
-    {
-        return accNo;
+
+    Double perTransactionLimit=0.0;
+    public CheckingAccount(String accountHolderName,Double initialDeposit) {
+        super(AcountType.CHECKING, accountHolderName,initialDeposit);
+        setPerTransactionLimit(initialDeposit/2);
     }
-    public String getAccType()
-    {
-        return accType;
+
+    @Override
+    public boolean creditFromAccount(Double amount){
+    if(amount <= perTransactionLimit){
+        return  super.creditFromAccount(amount);
     }
-    public String getHolderName()
-    {
-        return holderName;
+    return  false;
     }
-    public double getBalance()
-    {
-        return balance;
-    }
-    public boolean credit(double amount)
-    {
-        if(balance < amount)
-        {
-            return false;
-        }
-        else
-        {
-            balance -= amount;
-            return true;
-        }
-    }
-    public boolean debit(double amount)
-    {
-        balance += amount;
-        return true;
-    }
+
 }

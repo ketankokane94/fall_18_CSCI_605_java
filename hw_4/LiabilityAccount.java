@@ -1,12 +1,33 @@
 public abstract class LiabilityAccount extends BankAccount
 {
-    //public abstract boolean openAcc();
-    //public abstract boolean closeAcc();
 
-    public abstract int getAccNo();
-    public abstract String getAccType();
-    public abstract String getHolderName();
-    public abstract double getAmountOwed();
-    public abstract boolean credit(double amount);
-    public abstract boolean debit(double amount);
+    double totalCreditLimit;
+    double availableCreditLimit;
+
+    public LiabilityAccount(AcountType accountType, String accoountHolderName) {
+        super(accountType, accoountHolderName);
+        totalCreditLimit = 900.0;
+        availableCreditLimit = totalCreditLimit;
+    }
+
+    public void debitIntoAccount(Double payoffAmount){
+        if(payoffAmount > 0 && getMoneyOwed() >= payoffAmount){
+            availableCreditLimit+=payoffAmount;
+        }
+    }
+
+    public boolean creditFromAccount(Double amount){
+        if(availableCreditLimit > 0 && amount <= availableCreditLimit){
+                availableCreditLimit-=amount;
+                return  true;
+        }
+
+            return false;
+    }
+
+    public double getMoneyOwed(){
+        return totalCreditLimit - availableCreditLimit;
+    }
+
+
 }
