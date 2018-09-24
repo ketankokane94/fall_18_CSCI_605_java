@@ -35,7 +35,7 @@ public abstract class BankAccount
      * @return
      */
     private int generateNewAccountNumber() {
-        return  random.nextInt()%100;
+       return new Object().hashCode();
     }
 
 
