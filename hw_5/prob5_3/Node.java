@@ -1,23 +1,23 @@
-public class Node {
+public class Node<E> {
     Node Previous;
-    Object Data;
+    E Data;
     Node Next;
 
-    public Node(Object data) {
+    public Node(E data) {
         Data = data;
     }
 
-    public Node(Node previous, Object data) {
+    public Node(Node previous, E data) {
         Previous = previous;
         Data = data;
     }
 
-    public Node(Object data, Node next) {
+    public Node(E data, Node next) {
         Data = data;
         Next = next;
     }
 
-    public Node(Node previous, Object data, Node next) {
+    public Node(Node previous, E data, Node next) {
         Previous = previous;
         Data = data;
         Next = next;

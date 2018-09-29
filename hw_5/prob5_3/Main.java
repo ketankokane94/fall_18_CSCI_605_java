@@ -1,14 +1,14 @@
 public class Main {
     public static void main(String args[]){
 
-        MyLinkedList ll = new MyLinkedList();
+        MyLinkedList<String> ll = new MyLinkedList();
 
-        ll.addE("Hello");
-        ll.addE("World");
-        ll.addE("Ketan");
-        ll.addE("kokane");
-        ll.remove();
-
+        ll.addE("Hello"); //0
+        ll.addE("World");//1
+        ll.addE("Ketan");//0
+        ll.addE("kokane");//0
+        ll.add(1,"balbhim");
+        ll.remove(1);
         System.out.println(ll);
 
     }
