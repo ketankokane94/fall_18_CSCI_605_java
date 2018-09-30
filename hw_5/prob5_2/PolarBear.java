@@ -9,31 +9,31 @@
 
 /**
  *
- * This is a class Bear for animals of the Bear species. It has abstract class Animal as super class
- * and it implements the interfaces Carnivore and Herbivore since Bear is an omnivore. Hence, it
- * implements three methods, getName from Animals, goHunt from Carnivore and goGraze from Herbivore.
+ * This is a class PolarBear for animals of the Polar Bear species. It has abstract class Animal as super class
+ * and it implements the interface Carnivore since Polar Bear is a carnivore. Hence, it implements two methods,
+ * getName from Animals and goHunt from Carnivore.
  *
  * @author Ketan Balbhim Kokane
  * @author Ameya Deepak Nagnur
  */
 
-public class PolarBear extends Animal implements Herbivore, Carnivore {
+public class PolarBear extends Animal implements Carnivore {
 
     /**
-     * Constructor for Bear class. It can be instantiated to
-     * create an object for any animal that is a Bear.
+     * Constructor for PolarBear class. It can be instantiated to
+     * create an object for any animal that is a tiger.
      * It calls super to pass name, species and home to the
      * super class Animals' constructor.
      *
-     * @param   name             Name of Bear
-     * @param   home             Home of the Bear
+     * @param   name             Name of polar bear
+     * @param   home             Home of the polar bear
      */
     public PolarBear(String name,  String home) {
         super(name, "Bear", home);
     }
 
     /**
-     * Returns name of the Bear
+     * Returns name of the Polar Bear
      *
      * @param   none
      */
@@ -42,17 +42,7 @@ public class PolarBear extends Animal implements Herbivore, Carnivore {
     }
 
     /**
-     * This is to send the Bear to graze and print
-     * that with Bear's name
-     *
-     * @param   none
-     */
-    public void goGraze() {
-        System.out.println("I am "+ Name + " going to graze");
-    }
-
-    /**
-     * This is to send the Bear for hunting and print
+     * This is to send the Polar Bear for hunting and print
      * that with Bear's name
      *
      * @param   none

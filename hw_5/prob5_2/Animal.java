@@ -19,18 +19,22 @@ import java.util.Random;
  * @author Ameya Deepak Nagnur
  */
 
-public abstract class Animal {
+public abstract class Animal extends LivingBeing{
 
     // Stores name of the animal.
     String Name;
-    // Stores species of the animal i.e. Tiger or Giraffe etc.
-    String Species;
+
     // Stores home of that animal
     String Home;
+
+    // Coordinates of home of animal
+    int x1_home = 21;
+    int x2_home = 41;
+    int y1_home = 32;
+    int y2_home = 52;
+
     // Stores status of whether at home or not for the animal
     boolean AreYouHome = false;
-    // stores the Id of the animal
-    int Id;
 
     /**
      * Constructor for Animal class. Cannot create an object
@@ -43,31 +47,23 @@ public abstract class Animal {
      */
 
     public Animal(String name, String species,String home) {
-        Id = generateId();
+        super(species);
         Name = name;
-        Species = species;
         Home = home;
-        // Random value between 0 and 1 for home status of animal
-        int homeStatus = new Random().nextInt(2);
-        if(homeStatus == 1) {
-            AreYouHome = true;
-        }
-        
-    }
 
-    /**
-     * Returns the species of the current animal
-     *
-     * @param   none
-     */
-    public String getSpecies() {
-        return Species;
+        // Set coordinates randomly for home
+        setHomeCoordinates();
+
+        // Check if animal's position is in home boundaries and set
+        // AreYouHome status
+        AreYouHome = (x >= x1_home && x <= x2_home) && (y >= y1_home && y <= y2_home);
+        
     }
 
     /**
      * Abstract method getName
      *
-     * @param   none
+     * @param
      */
     public abstract String getName();
 
@@ -75,17 +71,21 @@ public abstract class Animal {
      * Changes home status of the animal and
      * returns the status as string to be printed
      *
-     * @param   none
      */
     public String goHome(){
+        // Take random value within home coordinates and move to that position
+        // Takes random value in range of home x and home y and adds that to smaller x and y
+        int x_new = x1_home + new Random().nextInt((x2_home - x1_home) + 1);
+        int y_new = y1_home + new Random().nextInt((y2_home - y1_home) + 1);
+        move(x_new, y_new);
+
         AreYouHome = true;
-        return "I am in "+ Home;
+        return "I am in "+ Home + " at position : (" + this.x + "," + this.y + ")";
     }
 
     /**
      * Returns a string with species and name of the animal
      *
-     * @param   none
      */
     public String whoAreYou(){
         StringBuilder stringBuilder = new StringBuilder();
@@ -101,12 +101,11 @@ public abstract class Animal {
     /**
      * Returns yes or no for whether animal is hungry randomly
      *
-     * @param   none
      */
     public String AreYouHungry()
     {
         // Random value between 0 and 1 for hunger status of animal
-        int hungerStatus = new Random().nextInt(2);
+        int hungerStatus = new Random().nextInt(2) ;
         if(hungerStatus == 0)
             return "No";
         else
@@ -117,7 +116,6 @@ public abstract class Animal {
      * Returns yes or no for whether animal is at home based on
      * animal's home status
      *
-     * @param   none
      */
     public String AreYouHome()
     {
@@ -127,8 +125,67 @@ public abstract class Animal {
             return "Yes";
     }
 
+    /**
+     * Moves animal to new position
+     *
+     * @param   x   x of position to move to
+     * @param   y   y of position to move to
+     */
+    public void move(int x, int y)
+    {
+        // Set x and y of Object to new positions, x and y, passed as params
+        this.x = x;
+        this.y = y;
+
+        System.out.println("I am " + Name + " at new position : (" + this.x + "," + this.y + ")");
+
+        // Check if animal's position is in home boundaries and set
+        // AreYouHome status
+        AreYouHome = (x >= x1_home && x <= x2_home) && (y >= y1_home && y <= y2_home);
+    }
+
+    /**
+     * Returns hash code of the object created for this class for
+     * animal's serial id
+     *
+     */
     private int generateId(){
         return new Object().hashCode();
+    }
+
+    /**
+     * Sets home coordinates randomly
+     *
+     */
+    public void setHomeCoordinates()
+    {
+        // Random values for x home coordinates between 0 and 100
+        int firstX = new Random().nextInt(101);
+        int secondX = new Random().nextInt(101);
+        if(firstX <= secondX)
+        {
+            x1_home = firstX;
+            x2_home = secondX;
+        }
+        else
+        {
+            x1_home = secondX;
+            x2_home = firstX;
+        }
+
+        // Random values for y home coordinates between 0 and 100
+        int firstY = new Random().nextInt(101);
+        int secondY = new Random().nextInt(101);
+        if(firstY <= secondY)
+        {
+            y1_home = firstY;
+            y2_home = secondY;
+        }
+        else
+        {
+            y1_home = secondY;
+            y2_home = firstY;
+        }
     }
 
 }
