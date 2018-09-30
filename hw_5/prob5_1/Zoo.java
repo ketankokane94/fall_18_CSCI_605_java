@@ -8,14 +8,12 @@
  */
 
 import java.util.Vector;
-import java.lang.Math;
-import java.util.Random;
 
 /**
  *
  * This program creates a vector using Animal class to create objects of various animal species and
  * use these objects to print information regarding the animal with the use of inheritance, abstract
- * classes and intefaces.
+ * classes and interfaces.
  *
  * @author Ketan Balbhim Kokane
  * @author Ameya Deepak Nagnur
@@ -39,12 +37,13 @@ public class Zoo {
         animals.add(new Tiger("ajoba","new york"));
         animals.add(new Lion("simba","rochester"));
         animals.add(new Gazelle("Gaza","Herd"));
-        animals.add(new Giraffe("GG","Herd"));
         animals.add(new PolarBear("Bageera","Cave"));
         animals.add((new Ferret("Ferret","Cage")));
         animals.add(new Camel("Camel","Dessert"));
         animals.add(new Alpaca("Apli","Alps"));
         animals.add(new Aardvark("rakhshak","rack"));
+        animals.add(new Skunk("SKunky","in Skunk"));
+        animals.add(new Giraffe("GG","Herd"));
 
 
         // Loop to run through all animals in the animals Vector.

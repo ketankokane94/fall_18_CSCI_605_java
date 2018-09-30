@@ -1,3 +1,12 @@
+/**
+ * Alpaca.java
+ *
+ * Version :
+ *          1.0
+ * Revisions :
+ *          1.0
+ */
+
 public class Alpaca extends Animal implements Herbivore {
 
 
