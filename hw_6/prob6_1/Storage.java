@@ -20,7 +20,6 @@ public class Storage {
     public static void main(String args[]){
 
         MyLinkedList<String> myLinkedList = new MyLinkedList();
-        testAdd();
         exampleOfHowToUseIt(myLinkedList);
         myLinkedList = new MyLinkedList();
         test(myLinkedList);
@@ -59,6 +58,14 @@ public class Storage {
         bStorage.add("a");
         bStorage.add("c");
         System.out.println("bStorage: " + bStorage );
+
+        System.out.print("bStorage Array : [ ");
+        Object [] bStore = bStorage.toArray();
+        for(int index = 0; index < bStore.length; index++) {
+            System.out.print(bStore[index] + " ");
+        }
+        System.out.println("]");
+
         if ( ! aStorage.addAll(aStorage) )
             System.out.println("You can not add yourself to yourself.");
         aStorage.addAll(bStorage);

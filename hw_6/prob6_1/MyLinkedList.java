@@ -18,11 +18,47 @@ public class MyLinkedList<E> {
     private int Size;
 
     /**
+     * Non parameterized constructor for MyLinkedList
+     */
+    public MyLinkedList() {
+        Size = 0;
+    }
+
+    /*
+    /**
+     * Parameterized constructor to create a List with a single element at the start
+     * @param startValue
+     *
+    public MyLinkedList(E startValue) {
+        Start.Data = startValue;
+        End = Start;
+        Size = 1;
+    }*/
+
+    /**
      * returns the number of elements in teh list
      * @return
      */
     public int size() {
         return Size;
+    }
+
+    /**
+     * Get elements in an array
+     * @return setArray Array with elements
+     */
+    public Object[] toArray() {
+        Object [] setArray = new Object[size()];
+        Node temp = Start;
+        if (size() != 0) {
+            int index = 0;
+            while (temp != null) {
+                setArray[index] = temp.Data;
+                index++;
+                temp = temp.Next;
+            }
+        }
+        return setArray;
     }
 
     /**
