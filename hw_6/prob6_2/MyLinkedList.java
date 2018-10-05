@@ -17,11 +17,17 @@ public class MyLinkedList<E> implements StorageI<E>{
     private Node End;
     private int Size;
 
+    // Maintain elements in an array for get method
+    E [] currentListArray;
+    // Get index for get to know which element to return
+    int getIndex;
+
     /**
      * Non parameterized constructor for MyLinkedList
      */
     public MyLinkedList() {
         Size = 0;
+        getIndex = 0;
     }
 
     /**
@@ -79,18 +85,27 @@ public class MyLinkedList<E> implements StorageI<E>{
             Start = newNode;
             End = newNode;
             Size++;
+            currentListArray = (E[]) toArray();
             return  true;
         }
         else {
             // this is not a new node
             addLast(e);
+            currentListArray = (E[]) toArray();
             return  true;
         }
     }
 
+    /**
+     * Get element at getIndex position
+     * @return list array element at get
+     */
     @Override
     public E get() {
-        return null;
+        int index = getIndex;
+        // Circular increment to get from start after last element
+        getIndex = (getIndex + 1) % size();
+        return currentListArray[index];
     }
 
     /**
@@ -158,9 +173,51 @@ public class MyLinkedList<E> implements StorageI<E>{
         return false;
     }
 
+    /**
+     * Sorts the elements in the list
+     */
     @Override
     public void sort() {
+        E [] listArray = (E [])toArray();
+        int arrayLength = listArray.length;
 
+        // Bubble Sort
+        for (int outerIndex = 0; outerIndex < arrayLength; outerIndex++) {
+            // Bubble sort sorts last element in every iteration hence we skip that comparison
+            for (int innerIndex = 0; innerIndex < arrayLength - outerIndex - 1; innerIndex++) {
+                /**
+                 Compare to compares strings lexographically and returns value > 0 if calling string is greater,
+                 0 if equal and < 0 if second string i.e. in paranthesis is greater.
+                **/
+                if (listArray[innerIndex].toString().compareTo(listArray[innerIndex + 1].toString()) > 0) {
+                    // Swap
+                    E temp = listArray[innerIndex];
+                    listArray[innerIndex] = listArray[innerIndex + 1];
+                    listArray[innerIndex + 1] = temp;
+                }
+            }
+        }
+
+        // Update array to sorted array
+        currentListArray = listArray;
+    }
+
+    /**
+     * Helper method to get elements in an array
+     * @return setArray Array with elements
+     */
+    public Object[] toArray() {
+        Object [] setArray = new Object[size()];
+        Node temp = Start;
+        if (size() != 0) {
+            int index = 0;
+            while (temp != null) {
+                setArray[index] = temp.Data;
+                index++;
+                temp = temp.Next;
+            }
+        }
+        return setArray;
     }
 
     /**
