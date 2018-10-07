@@ -16,18 +16,12 @@ public class Storage<E> implements StorageI<E>{
     private Node Start;
     private Node End;
     private int Size;
-
-    // Maintain elements in an array for get method
-    E [] currentListArray;
-    // Get index for get to know which element to return
-    int getIndex;
-
+    private Node currentNodeToReturn;
     /**
      * Non parameterized constructor for MyLinkedList
      */
     public Storage() {
         Size = 0;
-        getIndex = 0;
     }
 
     /**
@@ -41,7 +35,7 @@ public class Storage<E> implements StorageI<E>{
 
     @Override
     public String getClassName() {
-        return "MyLinkedList";
+        return "Storage";
     }
 
     /**
@@ -85,13 +79,11 @@ public class Storage<E> implements StorageI<E>{
             Start = newNode;
             End = newNode;
             Size++;
-            currentListArray = (E[]) toArray();
             return  true;
         }
         else {
             // this is not a new node
             addLast(e);
-            currentListArray = (E[]) toArray();
             return  true;
         }
     }
@@ -102,10 +94,14 @@ public class Storage<E> implements StorageI<E>{
      */
     @Override
     public E get() {
-        int index = getIndex;
-        // Circular increment to get from start after last element
-        getIndex = (getIndex + 1) % size();
-        return currentListArray[index];
+        E payload;
+        // check if this is the first call to get method
+        if (currentNodeToReturn == null){
+            currentNodeToReturn = Start;
+        }
+        payload = (E) currentNodeToReturn.Data;
+        currentNodeToReturn = currentNodeToReturn.Next;
+        return payload;
     }
 
     /**
@@ -178,47 +174,29 @@ public class Storage<E> implements StorageI<E>{
      */
     @Override
     public void sort() {
-        E [] listArray = (E [])toArray();
-        int arrayLength = listArray.length;
+        if (Size == 0)
+            return;
+        Node left = Start;
 
-        // Bubble Sort
-        for (int outerIndex = 0; outerIndex < arrayLength; outerIndex++) {
-            // Bubble sort sorts last element in every iteration hence we skip that comparison
-            for (int innerIndex = 0; innerIndex < arrayLength - outerIndex - 1; innerIndex++) {
-                /**
-                 Compare to compares strings lexographically and returns value > 0 if calling string is greater,
-                 0 if equal and < 0 if second string i.e. in paranthesis is greater.
-                **/
-                if (listArray[innerIndex].toString().compareTo(listArray[innerIndex + 1].toString()) > 0) {
-                    // Swap
-                    E temp = listArray[innerIndex];
-                    listArray[innerIndex] = listArray[innerIndex + 1];
-                    listArray[innerIndex + 1] = temp;
+        do{
+            Node right = left.Next;
+            while(right!= null){
+                if(isLeftGreaterThanRight((E)(left.Data), (E)(right.Data))){
+                    E temp = (E)(left.Data);
+                    (left.Data) = (E)(right.Data);
+                    (right.Data) = temp;
                 }
+                right = right.Next;
             }
-        }
-
-        // Update array to sorted array
-        currentListArray = listArray;
+            left = left.Next;
+        }while(left.Next != null);
     }
 
-    /**
-     * Helper method to get elements in an array
-     * @return setArray Array with elements
-     */
-    public Object[] toArray() {
-        Object [] setArray = new Object[size()];
-        Node temp = Start;
-        if (size() != 0) {
-            int index = 0;
-            while (temp != null) {
-                setArray[index] = temp.Data;
-                index++;
-                temp = temp.Next;
-            }
-        }
-        return setArray;
+
+    private boolean isLeftGreaterThanRight(E left, E right) {
+        return (left.toString().compareTo(right.toString()) > 0);
     }
+
 
     /**
      * Helper function to create a new Node
