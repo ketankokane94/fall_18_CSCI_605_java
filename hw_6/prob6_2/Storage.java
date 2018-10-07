@@ -1,5 +1,5 @@
 /**
- * MyLinkedList.java
+ * Storage.java
  *
  * Version :
  *          1.0
@@ -12,7 +12,7 @@
  * @author Ketan Balbhim Kokane
  * @author Ameya Deepak Nagnur
  */
-public class MyLinkedList<E> implements StorageI<E>{
+public class Storage<E> implements StorageI<E>{
     private Node Start;
     private Node End;
     private int Size;
@@ -25,7 +25,7 @@ public class MyLinkedList<E> implements StorageI<E>{
     /**
      * Non parameterized constructor for MyLinkedList
      */
-    public MyLinkedList() {
+    public Storage() {
         Size = 0;
         getIndex = 0;
     }

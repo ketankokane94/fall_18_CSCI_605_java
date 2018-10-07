@@ -19,9 +19,9 @@ public class FastAdd {
      * @param args command line arguments(ignored)
      */
     public static void main(String [] args) {
-        MyLinkedList<String> myLinkedList = new MyLinkedList<>();
+        Storage<String> myLinkedList = new Storage<>();
         test(myLinkedList);
-        myLinkedList = new MyLinkedList<>();
+        myLinkedList = new Storage<>();
         exampleOfHowToUseIt(myLinkedList);
     }
 
@@ -29,10 +29,11 @@ public class FastAdd {
      * Example of how to use the linked list functions
      * @param aStorage Linked list
      */
-    private static void exampleOfHowToUseIt(MyLinkedList aStorage) {
+    private static void exampleOfHowToUseIt(Storage aStorage) {
 
         /** String **/
-        aStorage = new MyLinkedList<>();
+        aStorage = new Storage<>();
+        System.out.println("aStorage is Empty ? "+ aStorage.isEmpty());
 
         // Add
         aStorage.add("b");
@@ -58,7 +59,7 @@ public class FastAdd {
         System.out.println();
 
         /** Integer **/
-        MyLinkedList<Integer> bStorage = new MyLinkedList<>();
+        Storage<Integer> bStorage = new Storage<>();
 
         // Add
         bStorage.add(2);
@@ -82,7 +83,7 @@ public class FastAdd {
         }
     }
 
-    private static void test(MyLinkedList aStorage) {
+    private static void test(Storage aStorage) {
         if (! testClear()) {
             System.out.println("testClear() failed!");
         }
@@ -107,15 +108,14 @@ public class FastAdd {
      * @return
      */
     public static boolean testAdd()     {
-        MyLinkedList<String> myLinkedList = new MyLinkedList<>();
-        String theStrings[] = { "a", "b", "c" };
+        Storage<String> myLinkedList = new Storage<>();
+        String theStrings[] = { "a", "b", "c" ,"c"};
         boolean rValue = true;
         for ( int index = 0; index < theStrings.length; index ++ )
             myLinkedList.add(theStrings[index]);
-        // Contains already tested
+
         for ( int index = 0; index < theStrings.length; index ++ )
             rValue &= myLinkedList.contains(theStrings[index]);
-        //myLinkedList.add("c");
 
         return rValue;
     }
@@ -125,7 +125,7 @@ public class FastAdd {
      * @return
      */
     private static boolean testClear() {
-        MyLinkedList <String> myLinkedList = new MyLinkedList<>();
+        Storage <String> myLinkedList = new Storage<>();
         boolean emptyStart = myLinkedList.size() == 0;
         myLinkedList.add("one");
         boolean oneAfterAdd = myLinkedList.size() == 1;
@@ -139,7 +139,7 @@ public class FastAdd {
      * @return
      */
     private static boolean testContains() {
-        MyLinkedList <String> myLinkedList = new MyLinkedList<>();
+        Storage <String> myLinkedList = new Storage<>();
         boolean emptyAtStart = myLinkedList.size() == 0;
         myLinkedList.add("one");
         boolean addedOne = myLinkedList.size() == 1 && myLinkedList.get().equals("one");
@@ -152,10 +152,10 @@ public class FastAdd {
      * @return
      */
     private static boolean testGet() {
-        MyLinkedList <String> myLinkedList = new MyLinkedList<>();
+        Storage <String> myLinkedList = new Storage<>();
         String theStrings[] = { "a", "b", "c" };
         boolean rValue = true;
-        // Add already tested
+
         for ( int index = 0; index < theStrings.length; index ++ )
             myLinkedList.add(theStrings[index]);
         // Get should get us all values in the same order
@@ -169,12 +169,12 @@ public class FastAdd {
      * @return
      */
     private static boolean testSort() {
-        MyLinkedList <String> myLinkedList = new MyLinkedList<>();
+        Storage <String> myLinkedList = new Storage<>();
 
         String theStrings[] = { "b", "c", "a" };
         boolean rValue = true;
 
-        // Add already tested
+
         for ( int index = 0; index < theStrings.length; index ++ )
             myLinkedList.add(theStrings[index]);
 
@@ -187,6 +187,18 @@ public class FastAdd {
         // If we get the strings as in the sorted array sortedStrings then success
         for ( int index = 0; index < theStrings.length; index ++ )
             rValue &= myLinkedList.get().equals(sortedStrings[index]);
+
+        int theIntegers[] = {1,7,9,2,3};
+        Storage<Integer> list = new Storage<Integer>();
+
+        for ( int index = 0; index < theIntegers.length; index ++ )
+            list.add(theIntegers[index]);
+
+        list.sort();
+        int sortedIntegers[] = {1,2,3,7,9};
+        for ( int index = 0; index < sortedIntegers.length; index ++ )
+            rValue &= list.get().equals(sortedIntegers[index]);
+
         return rValue;
     }
 }
