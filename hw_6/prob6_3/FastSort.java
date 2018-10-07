@@ -1,5 +1,5 @@
 /**
- * FastAdd.java
+ * FastSort.java
  *
  * Version :
  *          1.0
@@ -13,7 +13,7 @@
  * @author Ameya Deepak Nagnur
  */
 
-public class FastAdd {
+public class FastSort {
     /**
      * Main function
      * @param args command line arguments(ignored)

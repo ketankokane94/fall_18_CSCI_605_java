@@ -17,13 +17,15 @@ public class Node<E> {
     Node Previous;
     E Data;
     Node Next;
+    int NodeIndex;
 
     /**
      * Constructor to create a new Node with the given data
      * @param data
      */
-    public Node(E data) {
+    public Node(E data,int nodeIndex) {
         Data = data;
+        NodeIndex = nodeIndex;
     }
 
 
