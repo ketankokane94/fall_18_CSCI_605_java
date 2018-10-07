@@ -8,173 +8,349 @@
  */
 
 /**
- * Driver class of the implemented data structure
+ * Actual implementation Class which defines the internal structure of nodes in the List
  * @author Ketan Balbhim Kokane
  * @author Ameya Deepak Nagnur
  */
-public class Storage {
+public class Storage<E> {
+    private Node Start;
+    private Node End;
+    private int Size;
+
     /**
-     * main method
-     * @param args
+     * Non parameterized constructor for MyLinkedList
      */
-    public static void main(String args[]){
-
-        MyLinkedList<String> myLinkedList = new MyLinkedList();
-        exampleOfHowToUseIt(myLinkedList);
-        myLinkedList = new MyLinkedList();
-        test(myLinkedList);
-
+    public Storage() {
+        Size = 0;
     }
 
     /**
-     * tests the add, remove Index, clear and addIndex method
-     * @param aStorage
+     * returns the number of elements in teh list
+     * @return
      */
-    public static void test(MyLinkedList<String> aStorage)   {
-        if ( ! testContains() )
-            System.err.println("testContains failed");
-        if ( ! testRemove() )
-            System.err.println("testRemove failed");
-        if ( ! testRemoveAll() )
-            System.err.println("testRemoveAll failed");
-        if ( ! testAdd() )
-            System.err.println("testAdd failed");
-        if ( ! testAddAll() )
-            System.err.println("testAdd failed");
-        if ( ! testClear() )
-            System.err.println("testClear failed");
+    public int size() {
+        return Size;
     }
 
     /**
-     * example of how to use the data structure
-     * @param aStorage
+     * Get elements in an array
+     * @return setArray Array with elements
      */
-    public static void exampleOfHowToUseIt( MyLinkedList<String> aStorage)   {
-        aStorage = new MyLinkedList<String>();
-        MyLinkedList<String> bStorage = new MyLinkedList<String>();
-        aStorage.add("a");
-        System.out.println("aStorage: " + aStorage );
-        bStorage.add("b");
-        bStorage.add("a");
-        bStorage.add("c");
-        System.out.println("bStorage: " + bStorage );
-
-        System.out.print("bStorage Array : [ ");
-        Object [] bStore = bStorage.toArray();
-        for(int index = 0; index < bStore.length; index++) {
-            System.out.print(bStore[index] + " ");
+    public Object[] toArray() {
+        Object [] setArray = new Object[size()];
+        Node temp = Start;
+        if (size() != 0) {
+            int index = 0;
+            while (temp != null) {
+                setArray[index] = temp.Data;
+                index++;
+                temp = temp.Next;
+            }
         }
-        System.out.println("]");
-
-        if ( ! aStorage.addAll(aStorage) )
-            System.out.println("You can not add yourself to yourself.");
-        aStorage.addAll(bStorage);
-        System.out.println("aStorage: " + aStorage );
-        aStorage.removeAll(bStorage);
-        System.out.println("aStorage: " + aStorage );
-
+        return setArray;
     }
 
     /**
-     * testAdd method to test add and remove method of the data structure
-     * @return
+     * Checks if given value is present in list
+     * @param e value to find
+     * @return true if value found else false
      */
-    public static boolean testAdd()     {
-        MyLinkedList<String> myLinkedList = new MyLinkedList<>();
-        String theStrings[] = { "a", "b", "c" };
-        boolean rValue = true;
-        for ( int index = 0; index < theStrings.length; index ++ )
-            myLinkedList.add(theStrings[index]);
-        // Contains already tested
-        for ( int index = 0; index < theStrings.length; index ++ )
-            rValue &= myLinkedList.contains(theStrings[index]);
-        //myLinkedList.add("c");
-
-        return rValue;
-    }
-
-    /**
-     * test method to clear the list
-     * @return
-     */
-    private static boolean testClear() {
-        MyLinkedList <String> myLinkedList = new MyLinkedList<>();
-        boolean emptyStart = myLinkedList.size() == 0;
-        myLinkedList.add("one");
-        boolean oneAfterAdd = myLinkedList.size() == 1;
-        myLinkedList.clear();
-        boolean emptyAfterClear = myLinkedList.size() == 0;
-        return emptyStart && oneAfterAdd && emptyAfterClear;
-    }
-
-    /**
-     * test method to check if storage contains element
-     * @return
-     */
-    private static boolean testContains() {
-        MyLinkedList <String> myLinkedList = new MyLinkedList<>();
-        boolean emptyAtStart = myLinkedList.size() == 0;
-        myLinkedList.add("one");
-        boolean addedOne = myLinkedList.size() == 1 && myLinkedList.element().equals("one");
-        boolean containsElement = myLinkedList.contains("one");
-        return emptyAtStart && addedOne && containsElement;
-    }
-
-    /**
-     * test method AddAll
-     * @return
-     */
-    private static boolean testAddAll() {
-        MyLinkedList <String> myLinkedList = new MyLinkedList<>();
-        String [] store = {"a", "b", "c"};
-        MyLinkedList <String> newLinkedList = new MyLinkedList<>();
-
-        // Adds all elements that are not already present
-        myLinkedList.addAll(newLinkedList);
-
-        // removeAll is already tested
-        // After addAll all the elements were either added or already present
-        // Hence removeAll will return true if all elements were removed
-        boolean rValue = myLinkedList.removeAll(newLinkedList);
-
-        return  rValue;
-    }
-
-    /**
-     * test method Remove
-     * @return
-     */
-    private static boolean testRemove() {
-        MyLinkedList <String> myLinkedList = new MyLinkedList<>();
-        myLinkedList.add("one");
-        // Contains is already tested
-        boolean hasElement = myLinkedList.contains("one");
-        boolean removedElement = myLinkedList.remove("one");
-        return hasElement && removedElement;
-    }
-
-    /**
-     * test method RemoveAll
-     * @return
-     */
-    private static boolean testRemoveAll() {
-        MyLinkedList <String> myLinkedList = new MyLinkedList<>();
-        String [] store = {"a", "b", "c"};
-        MyLinkedList <String> newLinkedList = new MyLinkedList<>();
-        // Add is already tested
-        for(int index = 0; index < store.length; index++) {
-            myLinkedList.add(store[index]);
-            newLinkedList.add(store[index]);
+    public boolean contains(E e) {
+        if(size() == 0) {
+            return false;
+        }
+        // Found at Start
+        if(Start.Data.toString().equals(e.toString())) {
+            return true;
         }
 
-        myLinkedList.removeAll(newLinkedList);
+        // If there is more than one element then only check further
+        if(Start != End) {
+            // Found at End
+            if (End.Data.toString().equals(e.toString())) {
+                return true;
+            }
 
-        boolean rValue = true;
-        // Contains has already been tested
-        // If none of the values are present then removeAll worked
-        for(int index = 0; index < store.length; index++) {
-            rValue &= !(myLinkedList.contains(store[index]));
+            // If not found at end or start
+            int found = 0;
+            Node temp = Start.Next;
+            while (temp != End) {
+                if (temp.Data.toString().equals(e.toString())) {
+                    found = 1;
+                    break;
+                }
+                temp = temp.Next;
+            }
+            if (found == 1) {
+                return true;
+            } else {
+                return false;
+            }
         }
-        return  rValue;
+        else {
+            // Only one element is present which is not required element
+            return false;
+        }
     }
+
+    /**
+     * Adds the new node to the end of the list
+     * @param e
+     * @return
+     */
+    public boolean add(E e){
+        // check if the data point is alread is present
+        if (contains(e))
+            return false;
+        Node  newNode = createANewNode(e);
+
+        // check if this is the first node in the list
+        if (Start == null)
+        {
+            Start = newNode;
+            End = newNode;
+            Size++;
+            return  true;
+        }
+        else {
+            // this is not a new node
+           addLast(e);
+            return  true;
+        }
+    }
+
+    /**
+     * Adds the elements of the storage if not present already
+     * @param storage Storage whose elements are to be added
+     * @return true if at least one element added else false
+     */
+    public boolean addAll(Storage<E> storage) {
+        int addCount = 0;
+
+        Node temp = storage.Start;
+        while (temp != null) {
+            // If element already there then do not add, else add
+            // i.e. if its a subset or an equivalent storage then nothing added
+            if (!(this.contains((E) temp.Data))) {
+                if(add((E) temp.Data)) {
+                    addCount++;
+                }
+            }
+
+            temp = temp.Next;
+        }
+        if(addCount > 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    /**
+     * add the new node to the front of the list
+     * @param e
+     */
+    public void addFirst(E e) {
+        Node  newNode = createANewNode(e);
+        Node temp = Start;
+        Start = newNode;
+        newNode.Next = temp;
+        temp.Previous = newNode;
+        Size++;
+    }
+
+    /**
+     * adds the element to the end of the list
+     * @param e
+     */
+    public void addLast(E e){
+        Node  newNode = createANewNode(e);
+        Node temp = End;
+        End = newNode;
+        newNode.Previous = temp;
+        temp.Next = newNode;
+        Size++;
+    }
+
+    /**
+     * clears the entire list
+     */
+
+    public void clear(){
+        Start = End = null;
+        Size=0;
+    }
+
+    /**
+     * Helper function to create a new Node
+     * @param e
+     * @return
+     */
+    private Node createANewNode(E e) {
+        Node node = new Node(e);
+        return  node;
+    }
+
+    /**
+     * To String function to print the entire list
+     * @return
+     */
+    @Override
+    public String toString() {
+        Node node = Start;
+        StringBuilder sb = new StringBuilder();
+        sb.append("# of elements: "+Size);
+        sb.append("| --> ");
+        while (node != null){
+            sb.append(node.Data).append(" --> ");
+            node = node.Next;
+        }
+        sb.append("NULL");
+
+        return  sb.toString();
+    }
+
+    /**
+     * Removes element from the front of the list
+     * @return
+     */
+    public E remove(){
+        Node temp = null;
+        // check if atleast one element is present in the list
+        if (size() > 0){
+            temp = Start;
+            Start = Start.Next;
+            Size--;
+            return (E) temp.Data;
+        }
+       return null;
+
+    }
+
+    /**
+     * Removes all elements from list that are in storage.
+     * @param storage List with the elements to remove.
+     * @return true if number of elements removed is same as size of storage.
+     */
+    public boolean removeAll(Storage<E> storage) {
+        int removeCount = 0;
+
+        Node temp = storage.Start;
+        while(temp != null) {
+            if(remove((E) temp.Data)) {
+                removeCount++;
+            }
+            temp = temp.Next;
+        }
+        if(removeCount == storage.size()) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    /**
+     * adds the element in the list at the given index
+     * @param index
+     * @param e
+     */
+    public void add(int index, E e) {
+        // check if the index is in the range of the
+        if (index == 0){
+            addFirst(e);
+        }
+        else if(index == size()-1){
+            addLast(e);
+        }
+        else if (index < Size){
+
+            Node newNode = createANewNode(e);
+            Node temp = Start;
+            while (index > 0) {
+                temp = temp.Next;
+                index --;
+            }
+            Node Previous = temp.Previous;
+            temp.Previous = newNode;
+            newNode.Next = temp;
+            newNode.Previous = Previous;
+            Previous.Next = newNode;
+            Size++;
+        }
+    }
+
+
+    /**
+     * Finds the given data and removes that node
+     * @param e Data to be removed
+     * @return true if removed else false
+     */
+    public boolean remove(E e) {
+        // Empty list
+        if(size() == 0) {
+            return false;
+        }
+
+        // Found at the start
+        if(Start.Data.toString().equals(e.toString())) {
+            // Make second node as start
+            Start = Start.Next;
+            //Start.Previous = null;
+
+            Size--;
+            return true;
+        }
+
+        // If there is more than one element then check further
+        if(Start != End) {
+            // Found at the end
+            if (End.Data.toString().equals(e.toString())) {
+                // Make second last node as end
+                // We reach here only if Start != End so End.Previous is never null
+                End = End.Previous;
+                End.Next = null;
+                Size--;
+                return true;
+            }
+
+            // Element anywhere between Start and End
+            Node temp = Start.Next;
+            int found = 0;
+            while (temp != End) {
+                // Since in case of string == won't work while in other cases equals won't work
+                if (temp.Data.toString().equals(e.toString())) {
+                    // Make next and previous of temp point to each other
+                    temp.Next.Previous = temp.Previous;
+                    temp.Previous.Next = temp.Next;
+                    Size--;
+                    found = 1;
+                    break;
+                }
+                temp = temp.Next;
+            }
+            if (found == 1) {
+                // Element found and removed
+                return true;
+            } else {
+                return false;
+            }
+        }
+        else {
+            // Only one element which is not required element
+            return false;
+        }
+    }
+
+    /**
+     * Returns the element from the from front of the list
+     * @return
+     */
+    public E element(){
+        if (Size > 0)
+        return (E) Start.Data;
+        return null;
+    }
+
 }
