@@ -72,7 +72,6 @@ public class Storage<E>{
 
     public boolean add(E e) {
         Node  newNode = createANewNode(e);
-
         // check if this is the first node in the list
         if (Start == null)
         {
@@ -126,6 +125,9 @@ public class Storage<E>{
         // check if this is the first call to get method
         if (currentNodeToReturn == null){
             currentNodeToReturn = Start;
+            if (Size == 0) {
+                return null;
+            }
         }
         payload = (E) currentNodeToReturn.Data;
         currentNodeToReturn = currentNodeToReturn.Next;
@@ -215,12 +217,12 @@ public class Storage<E>{
         Node node = Start;
         StringBuilder sb = new StringBuilder();
         sb.append("# of elements: "+Size);
-        sb.append("| --> ");
+        sb.append("  | \u2192 ");
         while (node != null){
-            sb.append(node.Data).append(" --> ");
+            sb.append(node.Data).append(" \u2194 ");
             node = node.Next;
         }
-        sb.append("NULL");
+        sb.append("\u23DA");
 
         return  sb.toString();
     }
@@ -262,7 +264,13 @@ public class Storage<E>{
         // Found at the start
         if(Start.Data.toString().equals(e.toString())) {
             // Make second node as start
-            Start = Start.Next;
+            if (Start == End) {
+                Start = Start.Next;
+                End = End.Next;
+            }
+            else {
+                Start = Start.Next;
+            }
             //Start.Previous = null;
 
             Size--;

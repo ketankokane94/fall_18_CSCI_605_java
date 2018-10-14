@@ -1,3 +1,5 @@
+import javafx.css.Size;
+
 public class MyHashSet<E> implements SetI<E>
 {
     /*
@@ -10,15 +12,15 @@ public class MyHashSet<E> implements SetI<E>
         numberOfElementsInHashSet = 0;
         numberOfBuckets = 16;
         buckets = new Storage[numberOfBuckets];
-        getArrayIndex = 0;
-        getListIndex = 0;
+        arrayIndex = 0;
+        listIndex = 0;
     }
 
     private Storage<E> buckets[];
     private int numberOfBuckets;
     private int numberOfElementsInHashSet;
-    private int getArrayIndex;
-    private int getListIndex;
+    private int arrayIndex;
+    private int listIndex;
 
     /**
      *
@@ -49,14 +51,16 @@ public class MyHashSet<E> implements SetI<E>
         int addCount = 0;
         int index = 0;
         MyHashSet<E> newHashSet = (MyHashSet<E>) c;
-        while (index < newHashSet.buckets.length) {
-            /*
-                Add all elements in linked list in newHashset at index to
-                linked list at index in current hashset
-            */
-            if (buckets[index].addAll(newHashSet.buckets[index])) {
+        while (index < newHashSet.size()) {
+
+            // Get element to be added
+            E elementToAdd = newHashSet.get();
+
+            // Add element to current hash set
+            if(add(elementToAdd)) {
                 addCount++;
             }
+
             index++;
         }
         // If atleast one added
@@ -95,6 +99,8 @@ public class MyHashSet<E> implements SetI<E>
         int generateHashCode = calculateHashCode((E) ele);
         // Remove from linked list at index = hash code of object
         if (buckets[generateHashCode] != null && buckets[generateHashCode].remove((E) ele)) {
+            if (buckets[generateHashCode].size() == 0)
+                buckets[generateHashCode] = null;
             return true;
         }
         return false;
@@ -115,14 +121,16 @@ public class MyHashSet<E> implements SetI<E>
         int removeCount = 0;
         int index = 0;
         MyHashSet<E> newHashSet = (MyHashSet<E>) c;
-        while (index < newHashSet.buckets.length) {
-            /*
-                Remove all elements in linked list in newHashset at index from
-                linked list at index in current hashset
-            */
-            if (buckets[index].removeAll(newHashSet.buckets[index])) {
+        while (index < newHashSet.size()) {
+
+            // Get element to be added
+            E elementToAdd = newHashSet.get();
+
+            // Add element to current hash set
+            if(remove(elementToAdd)) {
                 removeCount++;
             }
+
             index++;
         }
         // If all removed
@@ -134,17 +142,57 @@ public class MyHashSet<E> implements SetI<E>
 
     @Override
     public boolean containsAll(SetI c) {
+        int containsCount = 0;
+        int index = 0;
+        MyHashSet<E> newHashSet = (MyHashSet<E>) c;
+        while (index < newHashSet.size()) {
+
+            // Get element to be added
+            E elementToAdd = newHashSet.get();
+
+            // Add element to current hash set
+            if(contains(elementToAdd)) {
+                containsCount++;
+            }
+
+            index++;
+        }
+        // If all found
+        if (containsCount == newHashSet.size()) {
+            return true;
+        }
         return false;
     }
 
     /*
         Helper function to get element
-     
-    private E get() {
-        E getElement = this.buckets[getArrayIndex].get();
-        getListIndex++;
-        if(getListIndex )
-    }*/
+     */
+    public E get() {
+        // go through the entire array using arrayIndex
+        if (size() > 0) {
+            while (arrayIndex < numberOfBuckets) {
+                if (buckets[arrayIndex] != null && listIndex < buckets[arrayIndex].size()) {
+                    E elementToReturn = buckets[arrayIndex].get();
+                    listIndex++;
+                    return elementToReturn;
+                } else {
+                    arrayIndex = ++arrayIndex % buckets.length;
+                    listIndex = 0;
+                }
+            }
+        }
+
+            return null;
+    }
+
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+        for (int index = 0; index < numberOfBuckets; index++) {
+                sb.append(String.format("%5s", index) + ": " );
+                sb.append(buckets[index] == null ? "NULL" : buckets[index]).append("\n");
+        }
+        return sb.toString();
+    }
 
     private int calculateHashCode(E ele) {
         // if the object is null then always 0 as the hashcode or use hashcode of the object
