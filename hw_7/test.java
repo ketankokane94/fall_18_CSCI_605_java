@@ -13,8 +13,14 @@ public class test {
         System.out.println("myHashSet.size() = " + myHashSet.size());
         System.out.println("myHashSet.isEmpty() = "+myHashSet.isEmpty());
         System.out.println(myHashSet.hashCode());
-        System.out.println();
-        System.out.println();
+        System.out.println("remove should fail because set is empty");
+        System.out.println("myHashSet.remove  (Ketan)"+myHashSet.remove("Ketan"));
+        System.out.println("myHashSet.size() = " + myHashSet.size());
+        System.out.println("Add Ketan "+ myHashSet.add("Ketan"));
+        System.out.println("myHashSet.remove  (Ketan)"+myHashSet.remove("Ketan"));
+        System.out.println("myHashSet.size() = " + myHashSet.size());
+        System.out.println(myHashSet.add(null));
+        System.out.println("myHashSet.size() = " + myHashSet.size());
         System.out.println();
         System.out.println();
        // System.out.println();System.out.println();System.out.println();System.out.println();System.out.println();System.out.println();System.out.println();System.out.println();

@@ -1,22 +1,24 @@
-public class MyHashSet<E> implements SetI<E> {
-
+public class MyHashSet<E> implements SetI<E>
+{
     /*
     maintain an 2 D array to store the buckets -- > array of what ? ans array of E
     why 2D Array to handle the collision
-
     What is load factor ???
-
      */
 
     public MyHashSet() {
         numberOfElementsInHashSet = 0;
         numberOfBuckets = 16;
-        buckets = new Node[numberOfBuckets];
+        buckets = new Storage[numberOfBuckets];
+        getArrayIndex = 0;
+        getListIndex = 0;
     }
 
-    private Node buckets[];
+    private Storage<E> buckets[];
     private int numberOfBuckets;
     private int numberOfElementsInHashSet;
+    private int getArrayIndex;
+    private int getListIndex;
 
     /**
      *
@@ -30,21 +32,43 @@ public class MyHashSet<E> implements SetI<E> {
         // check if the object already exists
         if(!contains(ele)){
             // the logic of inserting the element
-            insertTheElementAtGivenIndex(ele,generatedHashCode);
-            numberOfElementsInHashSet++;
+            if(buckets[generatedHashCode] == null) {
+                buckets[generatedHashCode] = new Storage<>();
+            }
+                boolean added = buckets[generatedHashCode].add(ele);
+                if (added) {
+                    numberOfElementsInHashSet++;
+                    return true;
+                }
+            }
+            return false;
+    }
+
+    @Override
+    public boolean addAll(SetI<? extends E> c) {
+        int addCount = 0;
+        int index = 0;
+        MyHashSet<E> newHashSet = (MyHashSet<E>) c;
+        while (index < newHashSet.buckets.length) {
+            /*
+                Add all elements in linked list in newHashset at index to
+                linked list at index in current hashset
+            */
+            if (buckets[index].addAll(newHashSet.buckets[index])) {
+                addCount++;
+            }
+            index++;
+        }
+        // If atleast one added
+        if (addCount > 0) {
             return true;
         }
         return false;
     }
 
     @Override
-    public boolean addAll(SetI c) {
-        return false;
-    }
-
-    @Override
     public void clear() {
-        buckets = new Node[numberOfBuckets];
+        buckets = new Storage[numberOfBuckets];
         numberOfElementsInHashSet = 0;
     }
 
@@ -53,9 +77,11 @@ public class MyHashSet<E> implements SetI<E> {
         // calculate the hash code of the  object
         int generateHashCode = calculateHashCode((E) ele);
 
+        // If empty then definitely does not contain
         if (buckets[generateHashCode] == null)
             return false;
-        return checkIfElementIsPresentAtElement((E) ele,generateHashCode);
+        // Check if element contained in linked list at index  = hash code of element
+        return buckets[generateHashCode].contains((E) ele);
     }
 
     @Override
@@ -65,6 +91,12 @@ public class MyHashSet<E> implements SetI<E> {
 
     @Override
     public boolean remove(Object ele) {
+        // Get hash code of the object
+        int generateHashCode = calculateHashCode((E) ele);
+        // Remove from linked list at index = hash code of object
+        if (buckets[generateHashCode] != null && buckets[generateHashCode].remove((E) ele)) {
+            return true;
+        }
         return false;
     }
 
@@ -80,6 +112,23 @@ public class MyHashSet<E> implements SetI<E> {
 
     @Override
     public boolean removeAll(SetI c) {
+        int removeCount = 0;
+        int index = 0;
+        MyHashSet<E> newHashSet = (MyHashSet<E>) c;
+        while (index < newHashSet.buckets.length) {
+            /*
+                Remove all elements in linked list in newHashset at index from
+                linked list at index in current hashset
+            */
+            if (buckets[index].removeAll(newHashSet.buckets[index])) {
+                removeCount++;
+            }
+            index++;
+        }
+        // If all removed
+        if (removeCount == newHashSet.size()) {
+            return true;
+        }
         return false;
     }
 
@@ -88,42 +137,15 @@ public class MyHashSet<E> implements SetI<E> {
         return false;
     }
 
-    private void iterateThroughTheList(Node node, StringBuilder sb) {
-        while (node!=null && node.Payload != null){
-            sb.append(node.Payload);
-            sb.append("-->");
-        }
-    }
+    /*
+        Helper function to get element
+     
+    private E get() {
+        E getElement = this.buckets[getArrayIndex].get();
+        getListIndex++;
+        if(getListIndex )
+    }*/
 
-    private boolean checkIfElementIsPresentAtElement(E ele, int generateHashCode) {
-        // traverse through the entire linked list at a index to check if the element is present or not
-        Node node = buckets[generateHashCode];
-        while (node != null){
-            // need a better object equality here
-            // need a null check for Payload
-            if(node.Payload.toString().compareTo(ele.toString()) == 0){
-                return true;
-            }
-            node = node.Next;
-        }
-        return false;
-    }
-
-    private void insertTheElementAtGivenIndex(E ele, int generateHashCode) {
-        // if no element is present at the index simply add the new node there
-        if(buckets[generateHashCode]==null){
-            buckets[generateHashCode] = new Node(ele);
-        }
-        else {
-            // this part of the code is to handle the collision
-            Node node = buckets[generateHashCode];
-            while (node.Next != null){
-                node = node.Next;
-            }
-            // now temp is pointing to the last node
-            node.Next = new Node(ele);
-        }
-    }
     private int calculateHashCode(E ele) {
         // if the object is null then always 0 as the hashcode or use hashcode of the object
         // mod function is to keep the hashcode bound to size of the array as we use it as your array index
