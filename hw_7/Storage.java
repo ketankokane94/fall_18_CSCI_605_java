@@ -216,8 +216,8 @@ public class Storage<E>{
     public String toString() {
         Node node = Start;
         StringBuilder sb = new StringBuilder();
-        sb.append("# of elements: "+Size);
-        sb.append("  | \u2192 ");
+       // sb.append("# of elements: "+Size);
+        sb.append("\u2192 ");
         while (node != null){
             sb.append(node.Data).append(" \u2194 ");
             node = node.Next;
@@ -260,6 +260,8 @@ public class Storage<E>{
         if(size() == 0) {
             return false;
         }
+
+
 
         // Found at the start
         if(Start.Data.toString().equals(e.toString())) {

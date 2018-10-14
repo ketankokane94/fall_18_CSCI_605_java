@@ -21,6 +21,7 @@ public class MyHashSet<E> implements SetI<E>
     private int numberOfElementsInHashSet;
     private int arrayIndex;
     private int listIndex;
+    private boolean hasNullElement;
 
     /**
      *
@@ -30,6 +31,10 @@ public class MyHashSet<E> implements SetI<E>
     @Override
     public boolean add(E ele) {
         // calculate the hash code of the  object
+        if (ele == null && !hasNullElement){
+                hasNullElement = true;
+                return true;
+        }
         int generatedHashCode = calculateHashCode(ele);
         // check if the object already exists
         if(!contains(ele)){
@@ -95,13 +100,19 @@ public class MyHashSet<E> implements SetI<E>
 
     @Override
     public boolean remove(Object ele) {
-        // Get hash code of the object
-        int generateHashCode = calculateHashCode((E) ele);
-        // Remove from linked list at index = hash code of object
-        if (buckets[generateHashCode] != null && buckets[generateHashCode].remove((E) ele)) {
-            if (buckets[generateHashCode].size() == 0)
-                buckets[generateHashCode] = null;
+        if (ele == null && hasNullElement){
+            hasNullElement = false;
             return true;
+        }
+        else {
+            // Get hash code of the object
+            int generateHashCode = calculateHashCode((E) ele);
+            // Remove from linked list at index = hash code of object
+            if (buckets[generateHashCode] != null && buckets[generateHashCode].remove((E) ele)) {
+                if (buckets[generateHashCode].size() == 0)
+                    buckets[generateHashCode] = null;
+                return true;
+            }
         }
         return false;
     }
@@ -113,7 +124,15 @@ public class MyHashSet<E> implements SetI<E>
 
     @Override
     public Object[] toArray() {
-        return new Object[0];
+        Object [] arrayOfList = new Object[size()];
+        int index = 0;
+        arrayIndex = 0;
+        listIndex = 0;
+        while (index < size()) {
+            arrayOfList[index] = this.get();
+            index++;
+        }
+        return arrayOfList;
     }
 
     @Override
@@ -164,6 +183,11 @@ public class MyHashSet<E> implements SetI<E>
         return false;
     }
 
+    /*@Override
+    public boolean equals(Object o) {
+
+    }*/
+
     /*
         Helper function to get element
      */
@@ -186,17 +210,52 @@ public class MyHashSet<E> implements SetI<E>
     }
 
     public String toString(){
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder("\n");
+
         for (int index = 0; index < numberOfBuckets; index++) {
                 sb.append(String.format("%5s", index) + ": " );
-                sb.append(buckets[index] == null ? "NULL" : buckets[index]).append("\n");
+                sb.append(index==0 ? hasNullElement? "null ": "": "");
+                sb.append(buckets[index] == null ? "" : buckets[index]).append("\n");
         }
         return sb.toString();
+
     }
 
     private int calculateHashCode(E ele) {
         // if the object is null then always 0 as the hashcode or use hashcode of the object
         // mod function is to keep the hashcode bound to size of the array as we use it as your array index
         return ele == null ? 0 : ele.hashCode() < 0 ? (ele.hashCode() * -1 ) % (numberOfBuckets - 1) : ele.hashCode() % (numberOfBuckets - 1);
+
+    }
+
+    public static void main(String args[] )      {
+        SetI<String> aSet = new MyHashSet<String>();
+        SetI<String> bSet = new MyHashSet<String>();
+
+        String[] aStrings = { "a", "b", "c" };
+        String[] bStrings = { "A", "B", "C" };
+        aSet.add(aStrings[0]); aSet.add(aStrings[1]);           // setup a, b
+        bSet.add(bStrings[0]); bSet.add(bStrings[1]);           // setup A, B
+
+        System.out.println("aSet = " + aSet );                  // --> a, b
+
+        for (int index = 0; index < aStrings.length; index ++ ) {       // contans a and b, not c
+            System.out.println("does " +
+                    ( aSet.contains(aStrings[index]) ? "" : " not " ) + "contain: " +
+                    aStrings[index] );
+        }
+        System.out.println("aSet = " + aSet );                  // --> a, b
+
+        System.out.println("aSet.remove(aStrings[0]); = " + aSet.remove(aStrings[0]) ); // contains b
+        System.out.println("aSet.remove(aStrings[2]); = " + aSet.remove(aStrings[2]) ); // can not remove x
+        System.out.println("aSet = " + aSet );
+
+        aSet.addAll(bSet);                                      // --> b, A, B
+        System.out.println("aSet = " + aSet );
+
+
+        aSet.add(null);                                         // --> b, A, B, null
+        System.out.println("aSet = " + aSet );
+        System.out.println("aSet.remove(null); = " + aSet.remove(null) );       // can remove null
     }
 }

@@ -10,6 +10,6 @@ public interface SetI<E> {
     boolean	isEmpty();
     boolean	remove(Object o);
     int	size();
-    Object[]	toArray();
+    Object[] toArray();
     // <T> T[]	toArray(T[] a); try it, not required
 }
