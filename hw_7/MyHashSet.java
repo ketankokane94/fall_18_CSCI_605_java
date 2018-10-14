@@ -1,5 +1,3 @@
-import javafx.css.Size;
-
 public class MyHashSet<E> implements SetI<E>
 {
     /*
@@ -183,14 +181,7 @@ public class MyHashSet<E> implements SetI<E>
         return false;
     }
 
-    /*@Override
-    public boolean equals(Object o) {
 
-    }*/
-
-    /*
-        Helper function to get element
-     */
     public E get() {
         // go through the entire array using arrayIndex
         if (size() > 0) {
@@ -220,6 +211,7 @@ public class MyHashSet<E> implements SetI<E>
         return sb.toString();
 
     }
+
 
     private int calculateHashCode(E ele) {
         // if the object is null then always 0 as the hashcode or use hashcode of the object
@@ -257,5 +249,141 @@ public class MyHashSet<E> implements SetI<E>
         aSet.add(null);                                         // --> b, A, B, null
         System.out.println("aSet = " + aSet );
         System.out.println("aSet.remove(null); = " + aSet.remove(null) );       // can remove null
+
+        System.out.println(" aSet.equals(aSet) "+ aSet.equals(aSet));
+        System.out.println(" aSet.equals(bSet) "+ aSet.equals(bSet));
+
+
+        Storage<String> myLinkedList = new Storage();
+        myLinkedList = new Storage();
+        test(myLinkedList);
+    }
+
+    /**
+     * tests the add, remove Index, clear and addIndex method
+     * @param aStorage
+     */
+    public static void test(Storage<String> aStorage)   {
+        if ( ! testContains() )
+            System.err.println("testContains failed");
+        if ( ! testRemove() )
+            System.err.println("testRemove failed");
+        if ( ! testRemoveAll() )
+            System.err.println("testRemoveAll failed");
+        if ( ! testAdd() )
+            System.err.println("testAdd failed");
+        if ( ! testAddAll() )
+            System.err.println("testAdd failed");
+        if ( ! testClear() )
+            System.err.println("testClear failed");
+    }
+
+
+    /**
+     * testAdd method to test add and remove method of the data structure
+     * @return
+     */
+    public static boolean testAdd()     {
+        MyHashSet<String> myLinkedList = new MyHashSet<>();
+        String theStrings[] = { "a", "b", "c","c" };
+        boolean rValue = true;
+        for ( int index = 0; index < theStrings.length; index ++ )
+            myLinkedList.add(theStrings[index]);
+        // the size should be 3
+        rValue &= myLinkedList.size() == 3;
+        for ( int index = 0; index < theStrings.length; index ++ )
+            rValue &= myLinkedList.contains(theStrings[index]);
+        return rValue;
+    }
+
+    /**
+     * test method to clear the list
+     * @return
+     */
+    private static boolean testClear() {
+        MyHashSet <String> myLinkedList = new MyHashSet<>();
+        boolean emptyStart = myLinkedList.size() == 0;
+        myLinkedList.add("one");
+        boolean oneAfterAdd = myLinkedList.size() == 1;
+        myLinkedList.clear();
+        boolean emptyAfterClear = myLinkedList.size() == 0;
+        return emptyStart && oneAfterAdd && emptyAfterClear;
+    }
+
+    /**
+     * test method to check if storage contains element
+     * @return
+     */
+    private static boolean testContains() {
+        MyHashSet <String> myLinkedList = new MyHashSet<>();
+        boolean emptyAtStart = myLinkedList.size() == 0;
+        myLinkedList.add("one");
+        boolean addedOne = myLinkedList.size() == 1 && myLinkedList.get().equals("one");
+        boolean containsElement = myLinkedList.contains("one");
+        // should return false if the element is not present
+        containsElement &= ! myLinkedList.contains("two");
+        return emptyAtStart && addedOne && containsElement;
+    }
+
+    /**
+     * test method AddAll
+     * @return
+     */
+    private static boolean testAddAll() {
+        boolean rValue = true;
+        MyHashSet <String> myLinkedList = new MyHashSet<>();
+        myLinkedList.add("one");myLinkedList.add("two");
+        MyHashSet <String> newLinkedList = new MyHashSet<>();
+        newLinkedList.add("one");newLinkedList.add("two");
+        newLinkedList.add("3");newLinkedList.add("4");
+        rValue &= myLinkedList.size() == 2;
+        // Adds all elements that are not already present
+        myLinkedList.addAll(newLinkedList);
+        rValue &= myLinkedList.size() == 4;
+        rValue &= myLinkedList.contains("3");
+        // After addAll all the elements were either added or already present
+        // Hence removeAll will return true if all elements were removed
+        rValue &= myLinkedList.removeAll(newLinkedList);
+
+        return  rValue;
+    }
+
+    /**
+     * test method Remove
+     * @return
+     */
+    private static boolean testRemove() {
+        MyHashSet <String> myLinkedList = new MyHashSet<>();
+        myLinkedList.add("one");
+        myLinkedList.add("one");
+
+        boolean hasElement = myLinkedList.contains("one");
+        boolean removedElement = myLinkedList.remove("one");
+
+        return hasElement && removedElement;
+    }
+
+    /**
+     * test method RemoveAll
+     * @return
+     */
+    private static boolean testRemoveAll() {
+        MyHashSet <String> myLinkedList = new MyHashSet<>();
+        String [] store = {"a", "b", "c"};
+        MyHashSet <String> newLinkedList = new MyHashSet<>();
+        for(int index = 0; index < store.length; index++) {
+            myLinkedList.add(store[index]);
+            newLinkedList.add(store[index]);
+        }
+
+        myLinkedList.removeAll(newLinkedList);
+
+        boolean rValue = true;
+        // Contains has already been tested
+        // If none of the values are present then removeAll worked
+        for(int index = 0; index < store.length; index++) {
+            rValue &= !(myLinkedList.contains(store[index]));
+        }
+        return  rValue;
     }
 }
