@@ -17,6 +17,29 @@ public class Grep {
             // For command required by user entered as grep
             if (commandArray[0].equals("grep")) {
                 try {
+                    boolean invalidCommand = false;
+
+                    // Check for any invalid command
+                    int arrayIndex = 0;
+                    while (arrayIndex < commandArray.length) {
+                        // If string of the form - followed by any characters
+                        // And is not -c or -w or -l or -q
+                        String stringToCheck = commandArray[arrayIndex];
+                        if (stringToCheck.charAt(0) == '-'
+                                && !(stringToCheck.equals("-c"))
+                                && !(stringToCheck.equals("-w"))
+                                && !(stringToCheck.equals("-l"))
+                                && !(stringToCheck.equals("-q"))) {
+                            System.out.println("invalid command : " + stringToCheck);
+                            invalidCommand = true;
+                            break;
+                        }
+                        arrayIndex++;
+                    }
+
+                    if (invalidCommand) {
+                        continue;
+                    }
 
                     // If file given directly after grep i.e. no reg ex
                     if (new File(commandArray[1]).exists()) {
@@ -30,9 +53,18 @@ public class Grep {
                     boolean hasW = false;
                     boolean hasQ = false;
                     boolean noFileFound = false;
+
                     int index = 1;
-                    // Till you find a file
-                    while (!(new File(commandArray[index]).exists())) {
+
+                    String stringToCheck = commandArray[index];
+
+                    // Till you find a command -c or -w or -l or -q
+                    // Will not be executed even once for no commands i.e. only grep
+                    while ((stringToCheck.equals("-c"))
+                            || (stringToCheck.equals("-w"))
+                            || (stringToCheck.equals("-l"))
+                            || (stringToCheck.equals("-q"))) {//!(new File(commandArray[index]).exists())) {
+
                         if (commandArray[index].equals("-c")) {
                             hasC = true;
                         }
@@ -45,7 +77,10 @@ public class Grep {
                         if (commandArray[index].equals("-q")) {
                             hasQ = true;
                         }
+
                         index++;
+                        stringToCheck = commandArray[index];
+
                         // If index = length of array then no file found
                         if (index == commandArray.length) {
                             noFileFound = true;
@@ -58,20 +93,23 @@ public class Grep {
                         continue;
                     }
 
-                    // If string before the first file has a - then it is not a regex
-                    if (commandArray[index - 1].contains("-")) {
+                    // If string at index when loop ends should be the regular expression
+                    // If it is a file then no regular expression was given
+                    if ((new File(commandArray[index])).exists()) {
                         System.out.println("No regular expression to check");
                         continue;
                     }
 
-
-                    // Regex is last string before first file name
-                    String reg = commandArray[index - 1];
+                    // Regex is first string where loop ends
+                    String reg = commandArray[index];
                     System.out.println(reg);
                     System.out.println(index);
+                    // To go to first file
+                    index++;
 
                     // Remaining all must be files
                     while (index < commandArray.length) {
+
                         // Stores count of lines matching regex
                         int lineCount = 0;
                         // Flag to store if atleast one line matched in file
