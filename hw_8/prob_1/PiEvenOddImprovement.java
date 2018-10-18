@@ -1,22 +1,19 @@
 import java.io.*;
 
+
 public class PiEvenOddImprovement {
-    // initialise it to one because we know 3 is always going to be there
-    static long odd = 1;
+    static long odd = 0;
     static long even = 0;
 
     public static void main(String args[])  {
-        Reader reader = new StringReader("3.1415926535");
-        File PIFile = getRequiredFile();
-       // reader = new InputStreamReader(PIFile);
-            countEvenOddDigitInPI(reader);
+        try {
+            Reader stream = Helper.getStream(args);
+            countEvenOddDigitInPI(stream);
             printResult();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-
-    private static File getRequiredFile() {
-            return null;
-    }
-
 
     private static void printResult() {
         StringBuilder stringBuilder = new StringBuilder("even = ");
@@ -32,13 +29,11 @@ public class PiEvenOddImprovement {
         short digit;
         // TODO: FIND BETTER WAY TO SKIP 3. FROM THE INPUT
         try {
-            bufferedReader.read();
-            bufferedReader.read();
             while (true) {
                 // convert to short because the range of digit is from 48 to 57
                 digit = (short) bufferedReader.read();
                 // TODO: find a better mechanism to detect the end of file
-                if (digit != -1)
+                if (checkDigitIsValid(digit))
                     checkIfDigitIsEvenOrOdd(digit);
                 else
                     break;
@@ -50,8 +45,14 @@ public class PiEvenOddImprovement {
 
     }
 
+    private static boolean checkDigitIsValid(short digit) {
+        return  digit != -1;
+    }
+
     private static void checkIfDigitIsEvenOrOdd(short digit) {
-        if (digit != -1 && digit % 2 == 0) {
+        if (!(digit >= 49 && digit <= 57))
+            return;
+        if (digit % 2 == 0) {
             even++;
         } else {
             odd++;
