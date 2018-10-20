@@ -143,7 +143,7 @@ public class Grep {
                             }
 
                             if (hasW) {
-                                regex = ".*\\s" + reg + "\\s.*";
+                                regex = ".*[ ]" + reg + "[ ].*";
                             }
                             // If no -c -l -w and -q then just print line that matches
                             else {
