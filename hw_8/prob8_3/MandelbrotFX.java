@@ -9,7 +9,7 @@ import javafx.stage.Stage;
 
 public class MandelbrotFX extends Application {
 
-    WritableImage mandelBrotSetImage;
+    WritableImage [] mandelBrotSetImage;
     final int IMG_WIDTH 	= 800;
     final int IMG_HEIGHT 	= 800;
     long milliSeconds;
@@ -24,9 +24,13 @@ public class MandelbrotFX extends Application {
     }
 
     public void start(Stage theStage) {
-        // Get commandline argument using get parameters and pass to constructor
-        // Default if no cmd line arguments n = 3
-        int n = 3;
+
+        /*
+          Get commandline argument using get parameters and pass to constructor
+          Default if no cmd line arguments n = number of cores - 1 since one core is for the main thread
+         */
+        int n = Runtime.getRuntime().availableProcessors() - 1;
+
         if (getParameters().getRaw().size() == 1) {
             n = Integer.parseInt(getParameters().getRaw().get(0));
         }
@@ -38,11 +42,16 @@ public class MandelbrotFX extends Application {
         end("Multiple Thread MandelbrotSet Test");
 
 
-        ImageView aImage = new ImageView();
-        aImage.setImage(mandelBrotSetImage);
+        ImageView aImage [] = new ImageView[n];
+        for (int imageIndex = 0; imageIndex < n; imageIndex++) {
+            aImage[imageIndex] = new ImageView();
+            aImage[imageIndex].setImage(mandelBrotSetImage[imageIndex]);
+        }
 
         StackPane root = new StackPane();
-        root.getChildren().add(aImage);
+        for (int imageIndex = 0; imageIndex < n; imageIndex++) {
+            root.getChildren().add(aImage[imageIndex]);
+        }
 
         Scene scene = new Scene(root, IMG_WIDTH, IMG_HEIGHT);
 
@@ -83,9 +92,10 @@ class MandelbrotSet extends Thread {
 
     // This constructor is needed for call when we want to use this class for threads
     // and hence avoid some things done in the other constructor.
-    public MandelbrotSet(int width, int height, int pixelPositionCounter, PixelWriter aPixelWriter) {
+    public MandelbrotSet(int width, int height, int num_threads, int pixelPositionCounter, PixelWriter aPixelWriter) {
         this.width = width;
         this.height = height;
+        this.num_threads = num_threads;
         this.pixelPositionCounter = pixelPositionCounter;
         this.aPixelWriter = aPixelWriter;
     }
@@ -100,15 +110,40 @@ class MandelbrotSet extends Thread {
 
     @Override
     public void run() {
-        for (int x = 0; x < width; x++)
+        int count = 0;
+
+        int startX, startY, endX, endY;
+        // This is one position after end of previous thread
+        startX = (pixelPositionCounter - 1) * (width / num_threads);
+        startY = (pixelPositionCounter - 1) * (height / num_threads);
+        if (pixelPositionCounter == num_threads) {
+            endX = width;
+            endY = height;
+        }
+        else {
+            endX = startX + width / num_threads + 1;
+            endY = startY + height /  num_threads + 1;
+        }
+        for (int x = startX; x < endX; x++)
         {
-            for (int y = 0; y < height; y++) {
-                int position = (x * width) + y;
-                if (position % pixelPositionCounter == 0) {
-                    aPixelWriter.setColor(x, y, determineColor(x, y));
-                }
+            int yLower = 0;
+            if (x == startX) {
+                yLower = startY;
+            }
+            int yUpper = width;
+            // Only for last row we will go till endY else till height
+            if (x == endX - 1) {
+                yUpper = endY;
+            }
+            for (int y = yLower; y < yUpper; y++) {
+                //int position = (x * width) + y;
+                //if (position % num_threads == pixelPositionCounter) {
+                aPixelWriter.setColor(x, y, determineColor(x, y));
+                count++;
+                //}
             }
         }
+        //System.out.println("Thread " + pixelPositionCounter + " : Count = " + count);
     }
 
     private Color getColor(int count) {
@@ -142,21 +177,21 @@ class MandelbrotSet extends Thread {
         double img = (minI * (height - y) + y * maxI) / height;
         return getColor(calc(re, img));
     }
-    public WritableImage createImage()	{
+    public WritableImage [] createImage()	{
+
         mandelBrotSetImage = new WritableImage(width, height);
         aPixelWriter = mandelBrotSetImage.getPixelWriter();
 
+        WritableImage [] mandelBrotSetImageArray = new WritableImage[num_threads];
+
         Thread threadArray [] = new Thread[num_threads];
         for (int threadIndex = 0; threadIndex < num_threads; threadIndex++) {
-            allThreads[threadIndex] = new MandelbrotSet(width, height, threadIndex + 1, aPixelWriter);
+            mandelBrotSetImageArray[threadIndex] = new WritableImage(width, height);
+            PixelWriter pixelWriter = mandelBrotSetImageArray[threadIndex].getPixelWriter();
+            allThreads[threadIndex] = new MandelbrotSet(width, height, num_threads, threadIndex + 1, pixelWriter);
             allThreads[threadIndex].start();
-        }
 
-        /*for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                aPixelWriter.setColor(x, y, determineColor(x, y));
-            }
-        }*/
+        }
 
         for (int threadIndex = 0; threadIndex < num_threads; threadIndex++) {
             try {
@@ -166,6 +201,35 @@ class MandelbrotSet extends Thread {
                 ie.printStackTrace();
             }
         }
-        return mandelBrotSetImage;
+
+        return mandelBrotSetImageArray;
+        //return mandelBrotSetImage;
     }
 }
+
+/*
+ Best possible n = number of cores - 1
+
+ For n = number of cores - 1,
+ We use all the available cores and hence we get the maximum possible speed up.
+ We distribute the work into n parts with all n threads running parallely to complete
+ the task.
+ */
+
+/*
+ ALTERNATE METHOD
+ */
+
+/*
+         This thread gets color for pixel at positions that have pixelPositionCounter
+         as remainder on dividing by number of threads
+          */
+        /*for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                int position = (x * width) + y;
+                if (position % num_threads == pixelPositionCounter) {
+                    aPixelWriter.setColor(x, y, determineColor(x, y));
+                    count++;
+                }
+            }
+        }*/
