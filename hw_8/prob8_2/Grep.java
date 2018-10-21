@@ -1,5 +1,6 @@
 import java.util.*;
 import java.io.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
@@ -106,9 +107,13 @@ public class Grep {
         int foundInstances = 0;
         Pattern pat =  Pattern.compile(regex);
         while ((line = fileReader.readLine())!=null){
-            if(pat.matcher(line).matches()){
-                output.append(line).append("\n");
+            Matcher matcher = pat.matcher(line);
+            if(matcher.find()){
                 foundInstances++;
+                while (matcher.find())
+                    foundInstances++;
+                output.append(line).append("\n");
+
             }
         }
         if (hasC){
