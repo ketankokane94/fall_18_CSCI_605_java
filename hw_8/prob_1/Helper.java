@@ -8,12 +8,12 @@ public class Helper {
         Reader reader = null;
         if (args.length > 0) {
             // means some command line argument was passed to this program
-            if(checkIfFileNameIsPassed(args[0])){
-                    File file = getFile(args[0]);
-                    reader = new InputStreamReader(new FileInputStream(file));
-                    if (args[0].contains(".tz")) {
-                        reader = new InputStreamReader(new GZIPInputStream(new FileInputStream(file)));
-                    }
+            if(checkIfFileNameIsPassed(args[0])) {
+                File file = getFile(args[0]);
+                reader = new InputStreamReader(new FileInputStream(file));
+                if (args[0].contains(".tz")) {
+                    reader = new InputStreamReader(new GZIPInputStream(new FileInputStream(file)));
+                }
             }
             else {
                 // some string is passed in the command line argument parse it
@@ -35,8 +35,8 @@ public class Helper {
     }
 
     private static boolean checkIfFileNameIsPassed(String argument) {
+        // not a good way to check if the argument passed is file name or no, but based on specs given is OK
         return argument != null && argument.contains(".txt");
-            // not a good way to check if the argument passed is file name or no, but based on specs given is OK
     }
 }
 
