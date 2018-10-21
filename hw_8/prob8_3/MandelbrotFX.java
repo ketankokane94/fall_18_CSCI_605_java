@@ -25,9 +25,11 @@ public class MandelbrotFX extends Application {
 
     public void start(Stage theStage) {
 
-        // Get commandline argument using get parameters and pass to constructor
-        // Default if no cmd line arguments n = number of cores
-        int n = Runtime.getRuntime().availableProcessors();
+        /*
+          Get commandline argument using get parameters and pass to constructor
+          Default if no cmd line arguments n = number of cores - 1 since one core is for the main thread
+         */
+        int n = Runtime.getRuntime().availableProcessors() - 1;
 
         if (getParameters().getRaw().size() == 1) {
             n = Integer.parseInt(getParameters().getRaw().get(0));
@@ -119,8 +121,8 @@ class MandelbrotSet extends Thread {
             endY = height;
         }
         else {
-            endX = startX + width / num_threads;
-            endY = startY + height /  num_threads;
+            endX = startX + width / num_threads + 1;
+            endY = startY + height /  num_threads + 1;
         }
         for (int x = startX; x < endX; x++)
         {
@@ -204,6 +206,15 @@ class MandelbrotSet extends Thread {
         //return mandelBrotSetImage;
     }
 }
+
+/*
+ Best possible n = number of cores - 1
+
+ For n = number of cores - 1,
+ We use all the available cores and hence we get the maximum possible speed up.
+ We distribute the work into n parts with all n threads running parallely to complete
+ the task.
+ */
 
 /*
  ALTERNATE METHOD
