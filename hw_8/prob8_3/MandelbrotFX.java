@@ -102,7 +102,21 @@ class MandelbrotSet extends Thread {
     @Override
     public void run() {
         int count = 0;
-        int startX, startY, endX, endY;
+
+        /*
+         This thread gets color for pixel at positions that have pixelPositionCounter
+         as remainder on dividing by number of threads
+          */
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                int position = (x * width) + y;
+                if (position % num_threads == pixelPositionCounter) {
+                    aPixelWriter.setColor(x, y, determineColor(x, y));
+                    count++;
+                }
+            }
+        }
+        /*int startX, startY, endX, endY;
         // This is one position after end of previous thread
         startX = (pixelPositionCounter - 1) * (width / num_threads);
         startY = (pixelPositionCounter - 1) * (height / num_threads);
@@ -132,7 +146,7 @@ class MandelbrotSet extends Thread {
                 count++;
                 //}
             }
-        }
+        }*/
         System.out.println("Thread " + pixelPositionCounter + " : Count = " + count);
     }
 
@@ -173,8 +187,10 @@ class MandelbrotSet extends Thread {
 
         Thread threadArray [] = new Thread[num_threads];
         for (int threadIndex = 0; threadIndex < num_threads; threadIndex++) {
-            allThreads[threadIndex] = new MandelbrotSet(width, height, num_threads, threadIndex + 1, aPixelWriter);
+            allThreads[threadIndex] = new MandelbrotSet(width, height, num_threads, threadIndex, aPixelWriter);
             allThreads[threadIndex].start();
+
+            // We need this thread to complete to get updated Pixel Writer for next thread.
             try {
                 allThreads[threadIndex].join();
             }
