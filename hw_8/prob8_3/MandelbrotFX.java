@@ -9,7 +9,7 @@ import javafx.stage.Stage;
 
 public class MandelbrotFX extends Application {
 
-    WritableImage mandelBrotSetImage;
+    WritableImage [] mandelBrotSetImage;
     final int IMG_WIDTH 	= 800;
     final int IMG_HEIGHT 	= 800;
     long milliSeconds;
@@ -38,11 +38,16 @@ public class MandelbrotFX extends Application {
         end("Multiple Thread MandelbrotSet Test");
 
 
-        ImageView aImage = new ImageView();
-        aImage.setImage(mandelBrotSetImage);
+        ImageView aImage [] = new ImageView[n];
+        for (int imageIndex = 0; imageIndex < n; imageIndex++) {
+            aImage[imageIndex] = new ImageView();
+            aImage[imageIndex].setImage(mandelBrotSetImage[imageIndex]);
+        }
 
         StackPane root = new StackPane();
-        root.getChildren().add(aImage);
+        for (int imageIndex = 0; imageIndex < n; imageIndex++) {
+            root.getChildren().add(aImage[imageIndex]);
+        }
 
         Scene scene = new Scene(root, IMG_WIDTH, IMG_HEIGHT);
 
@@ -103,20 +108,7 @@ class MandelbrotSet extends Thread {
     public void run() {
         int count = 0;
 
-        /*
-         This thread gets color for pixel at positions that have pixelPositionCounter
-         as remainder on dividing by number of threads
-          */
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                int position = (x * width) + y;
-                if (position % num_threads == pixelPositionCounter) {
-                    aPixelWriter.setColor(x, y, determineColor(x, y));
-                    count++;
-                }
-            }
-        }
-        /*int startX, startY, endX, endY;
+        int startX, startY, endX, endY;
         // This is one position after end of previous thread
         startX = (pixelPositionCounter - 1) * (width / num_threads);
         startY = (pixelPositionCounter - 1) * (height / num_threads);
@@ -146,8 +138,8 @@ class MandelbrotSet extends Thread {
                 count++;
                 //}
             }
-        }*/
-        System.out.println("Thread " + pixelPositionCounter + " : Count = " + count);
+        }
+        //System.out.println("Thread " + pixelPositionCounter + " : Count = " + count);
     }
 
     private Color getColor(int count) {
@@ -181,16 +173,23 @@ class MandelbrotSet extends Thread {
         double img = (minI * (height - y) + y * maxI) / height;
         return getColor(calc(re, img));
     }
-    public WritableImage createImage()	{
+    public WritableImage [] createImage()	{
+
         mandelBrotSetImage = new WritableImage(width, height);
         aPixelWriter = mandelBrotSetImage.getPixelWriter();
 
+        WritableImage [] mandelBrotSetImageArray = new WritableImage[num_threads];
+
         Thread threadArray [] = new Thread[num_threads];
         for (int threadIndex = 0; threadIndex < num_threads; threadIndex++) {
-            allThreads[threadIndex] = new MandelbrotSet(width, height, num_threads, threadIndex, aPixelWriter);
+            mandelBrotSetImageArray[threadIndex] = new WritableImage(width, height);
+            PixelWriter pixelWriter = mandelBrotSetImageArray[threadIndex].getPixelWriter();
+            allThreads[threadIndex] = new MandelbrotSet(width, height, num_threads, threadIndex + 1, pixelWriter);
             allThreads[threadIndex].start();
 
-            // We need this thread to complete to get updated Pixel Writer for next thread.
+        }
+
+        for (int threadIndex = 0; threadIndex < num_threads; threadIndex++) {
             try {
                 allThreads[threadIndex].join();
             }
@@ -199,54 +198,25 @@ class MandelbrotSet extends Thread {
             }
         }
 
-        /*for (int threadIndex = 0; threadIndex < num_threads; threadIndex++) {
-            allThreads[threadIndex].start();
-            try {
-                allThreads[threadIndex].join();
-            }
-            catch (InterruptedException ie) {
-                ie.printStackTrace();
-            }
-        }*/
+        return mandelBrotSetImageArray;
+        //return mandelBrotSetImage;
+    }
+}
 
-        /*for(int ctr = 1; ctr <= num_threads; ctr++) {
-            int startX, startY, endX, endY;
-            // This is one position after end of previous thread
-            startX = (ctr - 1) * (width / num_threads);
-            startY = (ctr - 1) * (height / num_threads);
-            if (ctr == num_threads) {
-                endX = width;
-                endY = height;
-            }
-            else {
-                endX = width / num_threads;
-                endY = height /  num_threads;
-            }
-            for (int x = startX; x < endX; x++) {
-                for (int y = startY; y < endY; y++) {
+/*
+ ALTERNATE METHOD
+ */
+
+/*
+         This thread gets color for pixel at positions that have pixelPositionCounter
+         as remainder on dividing by number of threads
+          */
+        /*for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                int position = (x * width) + y;
+                if (position % num_threads == pixelPositionCounter) {
                     aPixelWriter.setColor(x, y, determineColor(x, y));
+                    count++;
                 }
             }
         }*/
-
-        /*for (int threadIndex = 0; threadIndex < num_threads; threadIndex++) {
-            try {
-                allThreads[threadIndex].join();
-            }
-            catch (InterruptedException ie) {
-                ie.printStackTrace();
-            }
-        }*/
-
-        /*try {
-            allThreads[0].join();
-            allThreads[1].join();
-            allThreads[2].join();
-        }
-        catch (InterruptedException ie) {
-            ie.printStackTrace();
-        }*/
-
-        return mandelBrotSetImage;
-    }
-}
