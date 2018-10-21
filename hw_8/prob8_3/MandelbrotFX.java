@@ -24,9 +24,11 @@ public class MandelbrotFX extends Application {
     }
 
     public void start(Stage theStage) {
+
         // Get commandline argument using get parameters and pass to constructor
-        // Default if no cmd line arguments n = 3
-        int n = 3;
+        // Default if no cmd line arguments n = number of cores
+        int n = Runtime.getRuntime().availableProcessors();
+
         if (getParameters().getRaw().size() == 1) {
             n = Integer.parseInt(getParameters().getRaw().get(0));
         }
