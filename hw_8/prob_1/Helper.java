@@ -11,8 +11,8 @@ public class Helper {
             if(checkIfFileNameIsPassed(args[0])) {
                 File file = getFile(args[0]);
                 reader = new InputStreamReader(new FileInputStream(file));
-                if (args[0].contains(".tz")) {
-                    reader = new InputStreamReader(new GZIPInputStream(new FileInputStream(file)),"US-ASCII");
+                if (args[0].contains(".gz")) {
+                    reader = new InputStreamReader(new GZIPInputStream(new FileInputStream(file)));
                 }
             }
             else {

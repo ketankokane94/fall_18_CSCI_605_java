@@ -34,7 +34,7 @@ public class PiEvenOddImprovement {
         try {
             while (true) {
                 // convert to short because the range of digit is from 48 to 57
-                int d  = bufferedReader.read();
+              //  int d  = bufferedReader.read();
                 digit = (short) bufferedReader.read();
                 // TODO: find a better mechanism to detect the end of file
                 if (checkDigitIsValid(digit)) {
