@@ -4,7 +4,7 @@ import java.util.zip.GZIPInputStream;
 
 public class Helper {
 
-    public static Reader getStream(String args[]) throws IOException {
+    public static Reader getStream(String args[]) throws EmptyFileException, IOException {
         Reader reader = null;
         if (args.length > 0) {
             // means some command line argument was passed to this program
@@ -12,7 +12,7 @@ public class Helper {
                 File file = getFile(args[0]);
                 reader = new InputStreamReader(new FileInputStream(file));
                 if (args[0].contains(".tz")) {
-                    reader = new InputStreamReader(new GZIPInputStream(new FileInputStream(file)));
+                    reader = new InputStreamReader(new GZIPInputStream(new FileInputStream(file)),"US-ASCII");
                 }
             }
             else {
@@ -22,7 +22,7 @@ public class Helper {
         }
         else {
             // means no argument was passed by the command line so the string would be read from stdin
-            reader = new InputStreamReader(System.in);
+            throw new EmptyFileException("EmptyFileException: null is empty") ;
 
         }
     return reader;
@@ -30,7 +30,7 @@ public class Helper {
 
     private static File getFile(String fileName) throws IOException {
             File fileToBeReturned = null;
-            fileToBeReturned = new File(new File("").getCanonicalPath()+ fileName);
+            fileToBeReturned = new File(new File("").getCanonicalPath()+ "/"+ fileName);
             return fileToBeReturned;
     }
 

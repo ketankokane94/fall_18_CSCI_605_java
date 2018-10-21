@@ -11,8 +11,11 @@ public class PiEvenOddImprovement {
             countEvenOddDigitInPI(stream);
             printResult();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
+        } catch (EmptyFileException e) {
+            System.err.println(e.getMessage());
         }
+
     }
 
     private static void printResult() {
@@ -31,16 +34,21 @@ public class PiEvenOddImprovement {
         try {
             while (true) {
                 // convert to short because the range of digit is from 48 to 57
+                int d  = bufferedReader.read();
                 digit = (short) bufferedReader.read();
                 // TODO: find a better mechanism to detect the end of file
-                if (checkDigitIsValid(digit))
+                if (checkDigitIsValid(digit)) {
                     checkIfDigitIsEvenOrOdd(digit);
-                else
+                }
+                else {
                     break;
+                }
             }
         }
-        catch (Exception IOException){
+        catch (IOException IOException){
                     IOException.printStackTrace();
+        } catch (NoNumbersException e) {
+            System.err.println(e.getMessage());
         }
 
     }
@@ -49,9 +57,14 @@ public class PiEvenOddImprovement {
         return  digit != -1;
     }
 
-    private static void checkIfDigitIsEvenOrOdd(short digit) {
-        if (!(digit >= 49 && digit <= 57))
-            return;
+    private static void checkIfDigitIsEvenOrOdd(short digit) throws NoNumbersException {
+        if (!(digit >= 48 && digit <= 57))
+            if (digit != 46)
+            {
+                System.err.println(digit);
+                throw new NoNumbersException(" NoNumbersException null is empty");
+            }
+
         if (digit % 2 == 0) {
             even++;
         } else {
