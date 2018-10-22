@@ -30,7 +30,7 @@ public class Helper {
 
     private static File getFile(String fileName) throws IOException {
             File fileToBeReturned = null;
-            fileToBeReturned = new File(new File("").getCanonicalPath()+ "/"+ fileName);
+            fileToBeReturned = new File(fileName);
             return fileToBeReturned;
     }
 
