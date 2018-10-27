@@ -26,9 +26,10 @@ public class Find {
         // parse the argument
         Find find = new Find();
         try {
-
             find.parseTheArguments(args);
-            if (find.checkIfTheProvidedDirectoryExists()){
+            // do some execution only if the directory on which operation is to be done exists and there is some operation
+            // which needs to be performed
+            if (find.checkIfTheProvidedDirectoryExists() && (find.passedFlags != null && find.passedFlags.size() > 0)){
                 find.execute();
             }
             else {
@@ -51,13 +52,13 @@ public class Find {
 
 
     private void iterateDirectory(File directory, StringBuilder stringBuilder) {
-        if (directory.exists()){
+        if (directory!= null && directory.exists()){
             File[] listOfFiles = directory.listFiles();
             for (File file : listOfFiles){
-                if (!file.isDirectory()){
+                if (typeOfFile.equals("-d") || !file.isDirectory()){
                     try {
                         BasicFileAttributes basicFileAttributes = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
-                        getDetailsBasedOnFlags(file,basicFileAttributes,stringBuilder);
+                        executePassedFlagsCommand(file,basicFileAttributes,stringBuilder);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -70,18 +71,26 @@ public class Find {
         }
     }
 
-    private void getDetailsBasedOnFlags(File file,BasicFileAttributes basicFileAttributes, StringBuilder stringBuilder) {
+    private void executePassedFlagsCommand(File file, BasicFileAttributes basicFileAttributes, StringBuilder stringBuilder) {
+        // TODO: remove below code later
         if (file.isHidden()){
             return;
         }
+        if (passedFlags.contains("-name") && !file.getName().contains(fileNameToLookFor)){
+            // means name parameter was provided and current file name does not match the
+            // file name user is looking for
+            return;
+
+        }
         stringBuilder.append(file.getName()).append("\t");
+
         for(String flag : passedFlags){
             switch (flag){
-                case "length": {
+                case "-length": {
                     stringBuilder.append(basicFileAttributes.size());
                     break;
                 }
-                case "date":{
+                case "-date":{
                     stringBuilder.append(new SimpleDateFormat().format(basicFileAttributes.lastModifiedTime().toMillis()));
                     break;
                 }
@@ -119,27 +128,33 @@ public class Find {
     }
 
     public void parseTheArguments(String[] commandLineParameters) throws InValidCommandException {
-        // remove initialization after testing is complete
+        // TODO: remove initialization after testing is complete
         directoryName="";
         fileNameToLookFor="";
-        typeOfFile="";
+        typeOfFile="-f"; // by default look for file, if -d look for directories
         passedFlags = new ArrayList<>();
         nextInputFlagShouldMatchThis = new Stack<>();
-        String input = String.join(" ", commandLineParameters);
 
+        // find Director [-some_flag ] hence the minimum length is 3
         if (commandLineParameters.length < 3) {
-            throw new InValidCommandException("InValid Command " + input);
+            throw new InValidCommandException("InValid Command " + String.join(" ", commandLineParameters));
         }
         if (!commandLineParameters[0].equals("find")) {
-            throw new InValidCommandException("InValid Command " + input);
+            throw new InValidCommandException("InValid Command " + String.join(" ", commandLineParameters));
         }
+        // directory name is always the 2 param, this can be kept dynamic by adding the -flag to specify the same
         directoryName = commandLineParameters[1];
+
         String option;
+        // iterate through the rest of the parameters , things that can be found are flags and there corresponding values
+        // so ex -type -f, so once type is encountered its known that next symbol is either -f -d
+        // so used stack to remember the previous flag and used regex to match the current expected flag
         for (int index = 2; index < commandLineParameters.length; index++) {
             String flag = commandLineParameters[index];
             if (!nextInputFlagShouldMatchThis.empty()) {
+                // if stack is not empty means the current flag is dependent on previous, use regex to match the flag
                 if(!Pattern.matches(nextInputFlagShouldMatchThis.pop(),flag)){
-                    throw  new InValidCommandException("");
+                    throw new InValidCommandException(nextInputFlagShouldMatchThis.peek() + " cannot be followed "+ flag);
                 }
                 else {
                     checkIfTheValueNeedsToBeStored(flag);
@@ -169,8 +184,9 @@ public class Find {
          }
     }
 
-
     private static HashMap<String,String> getImplementedFlagsForFind() {
+        // this function maps command implemented by the find program with any regex required to find the corresponding flags
+        // for ex -name commands needs to be followed by directoryName, hence used a regex to allow that
         HashMap<String,String> allowedFlags= new HashMap<>();
         allowedFlags.put("-length",null);
         allowedFlags.put("-name",".+");
@@ -179,4 +195,5 @@ public class Find {
         allowedFlags.put("find",null);
         return allowedFlags;
     }
+    // TODO: need to remove the find from the command line argument
 }
