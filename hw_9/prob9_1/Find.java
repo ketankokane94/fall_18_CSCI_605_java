@@ -1,3 +1,17 @@
+/**
+ * Find.java
+ *
+ * Version :
+ *          1.0
+ * Revisions :
+ *          1.0
+ */
+
+/**
+ * Experimentation to find prime numbers upto N using different number of threads and finding the optimum result
+ * @author Ketan Balbhim Kokane
+ * @author Ameya Deepak Nagnur
+ */
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
