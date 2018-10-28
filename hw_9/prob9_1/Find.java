@@ -109,16 +109,16 @@ public class Find {
             return;
 
         }
-        stringBuilder.append(file.getName()).append("\t");
+        stringBuilder.append(padRight(file.getName(),20)).append("\t");
 
         for(String flag : passedFlags){
             switch (flag){
                 case "-length": {
-                    stringBuilder.append(basicFileAttributes.size());
+                    stringBuilder.append(padRight(String.valueOf(basicFileAttributes.size()),10));
                     break;
                 }
                 case "-date":{
-                    stringBuilder.append(new SimpleDateFormat().format(basicFileAttributes.lastModifiedTime().toMillis()));
+                    stringBuilder.append(padRight(new SimpleDateFormat().format(basicFileAttributes.lastModifiedTime().toMillis()),30));
                     break;
                 }
             }
@@ -157,6 +157,11 @@ public class Find {
             }else {
                 throw new InValidCommandException("No Directory was passed");
             }
+    }
+
+
+    public static String padRight(String s, int n) {
+        return String.format("%1$-" + n + "s", s);
     }
 
     /**
