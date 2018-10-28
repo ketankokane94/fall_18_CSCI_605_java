@@ -45,7 +45,7 @@ public class ConsumerProducer extends Thread {
 
         while (true) {
             synchronized (o) {
-                if (count == 10) {
+                if (count == 1000) {
                     o.notifyAll();
                     break;
                 }
@@ -68,7 +68,7 @@ public class ConsumerProducer extends Thread {
                         someConsumerWaiting = true;
 
                         // Wait
-                        System.out.println(info + " waiting");
+                        //System.out.println(info + " waiting");
                         o.wait();
                     }
                     catch (InterruptedException ie) {
@@ -95,7 +95,7 @@ public class ConsumerProducer extends Thread {
                     try {
                             // Wait
                             someProducerWaiting = true;
-                            System.out.println(info + " waiting");
+                            //System.out.println(info + " waiting");
                             o.wait();
                         } catch (InterruptedException ie) {
                             someProducerWaiting = false;
@@ -110,16 +110,54 @@ public class ConsumerProducer extends Thread {
 
     public static void main(String args[]) {
        // Grep.o = ""
-        ConsumerProducer.storageSpace = 100;
-        ConsumerProducer.storageSpaceLeft = 100;
-        ConsumerProducer obj2 = new ConsumerProducer("C1" , 4);
-        ConsumerProducer obj4 = new ConsumerProducer("C2" , 4);
-        ConsumerProducer obj1 = new ConsumerProducer("P1", 2);
+        int num_consumers;
+        int num_producers;
+        int num_produced;
+        int num_consumed;
+
+        if (args.length < 5) {
+            ConsumerProducer.storageSpace = 100;
+            ConsumerProducer.storageSpaceLeft = 100;
+            num_consumers = 2;
+            num_producers = 2;
+            num_consumed = 4;
+            num_produced = 2;
+        }
+        else {
+            ConsumerProducer.storageSpace = 100;
+            ConsumerProducer.storageSpaceLeft = 100;
+            num_consumers = Integer.parseInt(args[0]);
+            num_producers = Integer.parseInt(args[1]);
+            num_consumed = Integer.parseInt(args[2]);
+            num_produced = Integer.parseInt(args[3]);
+        }
+
+        ConsumerProducer consumers[] = new ConsumerProducer[num_consumers];
+
+        for (int consumerCount = 0; consumerCount < num_consumers; consumerCount++) {
+            consumers[consumerCount] = new ConsumerProducer("C" + (consumerCount + 1), num_consumed);
+        }
+
+        ConsumerProducer producers[] = new ConsumerProducer[num_producers];
+
+        for (int producerCount = 0; producerCount < num_producers; producerCount++) {
+            producers[producerCount] = new ConsumerProducer("P" + (producerCount + 1), num_produced);
+        }
+
+        for (int consumerCount = 0; consumerCount < num_consumers; consumerCount++) {
+            consumers[consumerCount].start();
+        }
+
+        for (int producerCount = 0; producerCount < num_producers; producerCount++) {
+            producers[producerCount].start();
+        }
+
+        /*ConsumerProducer obj1 = new ConsumerProducer("P1", 2);
         ConsumerProducer obj3 = new ConsumerProducer("P2", 2);
 
         obj2.start();
         obj1.start();
         obj3.start();
-        obj4.start();
+        obj4.start();*/
     }
 }
