@@ -169,21 +169,19 @@ public class Find {
         passedFlags = new ArrayList<>();
         nextInputFlagShouldMatchThis = new Stack<>();
 
-        // find Director [-some_flag ] hence the minimum length is 3
-        if (commandLineParameters.length < 3) {
+        // Director [-some_flag ] hence the minimum length is 2
+        if (commandLineParameters.length < 2) {
             throw new InValidCommandException("InValid Command " + String.join(" ", commandLineParameters));
         }
-        if (!commandLineParameters[0].equals("find")) {
-            throw new InValidCommandException("InValid Command " + String.join(" ", commandLineParameters));
-        }
-        // directory name is always the 2 param, this can be kept dynamic by adding the -flag to specify the same
-        directoryName = commandLineParameters[1];
+
+        // directory name is always the 1 param, this can be kept dynamic by adding the -flag to specify the same
+        directoryName = commandLineParameters[0];
 
         String option;
         // iterate through the rest of the parameters , things that can be found are flags and there corresponding values
         // so ex -type -f, so once type is encountered its known that next symbol is either -f -d
         // so used stack to remember the previous flag and used regex to match the current expected flag
-        for (int index = 2; index < commandLineParameters.length; index++) {
+        for (int index = 1; index < commandLineParameters.length; index++) {
             String flag = commandLineParameters[index];
             if (!nextInputFlagShouldMatchThis.empty()) {
                 // if stack is not empty means the current flag is dependent on previous, use regex to match the flag
@@ -234,7 +232,6 @@ public class Find {
         allowedFlags.put("-name",".+");
         allowedFlags.put("-type","-f|-d");
         allowedFlags.put("-date",null);
-        allowedFlags.put("find",null);
         return allowedFlags;
     }
     // TODO: need to remove the find from the command line argument
