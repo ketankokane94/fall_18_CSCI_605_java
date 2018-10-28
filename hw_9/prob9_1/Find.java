@@ -8,7 +8,7 @@
  */
 
 /**
- * Experimentation to find prime numbers upto N using different number of threads and finding the optimum result
+ * Implementation of find funtionality of UNIX
  * @author Ketan Balbhim Kokane
  * @author Ameya Deepak Nagnur
  */
@@ -31,11 +31,17 @@ public class Find {
     private String directoryName,fileNameToLookFor,typeOfFile;
     Stack<String> nextInputFlagShouldMatchThis ;
 
-
+    /**
+     * constructor
+     */
     public Find() {
         allowedFlags = Find.getImplementedFlagsForFind();
     }
 
+    /**
+     * main driver class of the utility, get the input, parse it, execute it
+     * @param args
+     */
     public static void main(String args[]) {
         // parse the argument
         Find find = new Find();
@@ -57,21 +63,22 @@ public class Find {
 
     }
 
-    private void test1() throws InValidCommandException {
-        parseTheArguments(new String[]{"find",".","-name","ketan"});
-        parseTheArguments(new String[]{"find","/ketan/kokane","-name","ketan","-type","-f"});
-        parseTheArguments(new String[]{"find","/ketan/kokane","-name","ketan"});
-        parseTheArguments(new String[]{"find","/ketan/kokane","","ketan"});
-    }
-
-
+    /**
+     * function which iterates through a given directory and performs actions based on given commands
+     * @param directory
+     * @param stringBuilder
+     */
     private void iterateDirectory(File directory, StringBuilder stringBuilder) {
         if (directory!= null && directory.exists()){
+            // get the list of all the files / directories in the current directory
             File[] listOfFiles = directory.listFiles();
             for (File file : listOfFiles){
+                // check if the only directory is to be worked with ? by default utility works with files and directories
                 if (typeOfFile.equals("-d") || !file.isDirectory()){
                     try {
+                        // this is to read all the basic attributes of the files in one go
                         BasicFileAttributes basicFileAttributes = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
+
                         executePassedFlagsCommand(file,basicFileAttributes,stringBuilder);
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -85,11 +92,14 @@ public class Find {
         }
     }
 
+    /**
+     *  does the job of printing required information about the files
+     * @param file
+     * @param basicFileAttributes
+     * @param stringBuilder
+     */
     private void executePassedFlagsCommand(File file, BasicFileAttributes basicFileAttributes, StringBuilder stringBuilder) {
-        // TODO: remove below code later
-        if (file.isHidden()){
-            return;
-        }
+        // -name states that work with only files whoes name matches the given regex
         if (passedFlags.contains("-name") && !file.getName().contains(fileNameToLookFor)){
             // means name parameter was provided and current file name does not match the
             // file name user is looking for
@@ -114,6 +124,10 @@ public class Find {
         stringBuilder.append("\n");
     }
 
+    /**
+     * function which starts the iterative call to list all the directories
+     * and prints the result
+     */
     private void execute() {
         StringBuilder stringBuilder =  new StringBuilder();
         File directory = new File(directoryName);
@@ -121,18 +135,19 @@ public class Find {
         printResult(stringBuilder);
     }
 
-    private void test() {
-        passedFlags = new ArrayList<>();
-        directoryName = ".";
-        passedFlags.add("name");
-        passedFlags.add("length");
-        passedFlags.add("date");
-    }
-
+    /**
+     * simple helper function to print the result in required format
+     * @param stringBuilder
+     */
     private static void printResult(StringBuilder stringBuilder) {
         System.out.println(stringBuilder.toString());
     }
 
+    /**
+     * checks if the directory provided by the user exists or no
+     * @return
+     * @throws InValidCommandException
+     */
     private  boolean checkIfTheProvidedDirectoryExists() throws InValidCommandException {
             if (directoryName!=null && !directoryName.isEmpty()){
                 return new File(directoryName).exists();
@@ -141,8 +156,13 @@ public class Find {
             }
     }
 
+    /**
+     * main parser of the utility which handles the argument passed by the user and converts them to what utiliity requires
+     * @param commandLineParameters
+     * @throws InValidCommandException
+     */
     public void parseTheArguments(String[] commandLineParameters) throws InValidCommandException {
-        // TODO: remove initialization after testing is complete
+
         directoryName="";
         fileNameToLookFor="";
         typeOfFile="-f"; // by default look for file, if -d look for directories
@@ -184,6 +204,10 @@ public class Find {
         }
     }
 
+    /**
+     * helper function which stores the values of the flags provided by the user
+     * @param flag
+     */
     private void checkIfTheValueNeedsToBeStored(String flag) {
         String previousFlag = nextInputFlagShouldMatchThis.pop();
          switch (previousFlag){
@@ -198,6 +222,10 @@ public class Find {
          }
     }
 
+    /**
+     *  stores all the flags that the utility has implemented
+     * @return
+     */
     private static HashMap<String,String> getImplementedFlagsForFind() {
         // this function maps command implemented by the find program with any regex required to find the corresponding flags
         // for ex -name commands needs to be followed by directoryName, hence used a regex to allow that
