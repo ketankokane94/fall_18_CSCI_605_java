@@ -55,6 +55,33 @@ class PrimeAsFastAsPossible extends Thread{
     }
 
     /**
+     * Checks if any argument is a non number then throw the exception
+     */
+    public static void areArgumentsNumbers(String argument) throws NoNumberArgumentException {
+
+        // Integer.parseInt will throw an exception if non int provided to it
+        // Hence we throw an exception when Integer's exception is caught.
+        try {
+            int a = Integer.parseInt(argument);
+        }
+        catch (NumberFormatException notIntException) {
+            //notIntException.printStackTrace();
+            throw new NoNumberArgumentException("Argument is not a number");
+        }
+
+    }
+
+    /**
+     * Checks if any argument is negative then throw an exception.
+     */
+    public static void areArgumentsNegative(int argument) throws NegativeNumberArgumentException {
+
+        if (argument < 0) {
+            throw new NegativeNumberArgumentException("Argument is negative");
+        }
+    }
+
+    /**
      * main driver method of the program which initialises few properties of the experiment
      * @param args
      * @throws InterruptedException
@@ -69,15 +96,44 @@ class PrimeAsFastAsPossible extends Thread{
             System.out.println("No arguments provided program will run with Default parameters N = 10000000");
         }
         else {
-            N = Integer.parseInt(args[0]);
-            if (args.length >=3){
-                minNumberOfThread = Integer.parseInt(args[1]);
-                maxNumberOfThread = Integer.parseInt(args[2]);
-            }
-            if (args.length == 4){
-                showLog = args[3].equalsIgnoreCase("y");
-            }
+            try {
 
+                // Throw Exceptions
+                areArgumentsNumbers(args[0]);
+
+                N = Integer.parseInt(args[0]);
+
+                areArgumentsNegative(N);
+
+                if (args.length >= 3) {
+                    // Throw exceptions
+                    areArgumentsNumbers(args[1]);
+                    areArgumentsNumbers(args[2]);
+
+                    minNumberOfThread = Integer.parseInt(args[1]);
+                    maxNumberOfThread = Integer.parseInt(args[2]);
+
+                    // Throw exceptions
+                    areArgumentsNegative(minNumberOfThread);
+                    areArgumentsNegative(maxNumberOfThread);
+
+                    if (minNumberOfThread > maxNumberOfThread) {
+                        minNumberOfThread = 1;
+                        maxNumberOfThread = 20;
+                    }
+                }
+                if (args.length == 4) {
+                    showLog = args[3].equalsIgnoreCase("y");
+                }
+            }
+            catch (NoNumberArgumentException noNumberArgumentException) {
+                noNumberArgumentException.printStackTrace();
+                System.exit(0);
+            }
+            catch (NegativeNumberArgumentException negativeNumberArgumentException) {
+                negativeNumberArgumentException.printStackTrace();
+                System.exit(0);
+            }
         }
         result = new long[maxNumberOfThread];
         keyUsedForSynchronization = new Object();
