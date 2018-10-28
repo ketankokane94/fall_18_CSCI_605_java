@@ -55,11 +55,13 @@ public class ConsumerProducer extends Thread {
                         consume();
 
                         //System.out.println("Producers waiting : " + someProducerWaiting);
-                        // Wake up producer
-                        if (someProducerWaiting) {
-                            o.notifyAll();
-                            someProducerWaiting = false;
-                        }
+
+                    }
+
+                    // Wake up producer
+                    if (someProducerWaiting) {
+                        o.notifyAll();
+                        someProducerWaiting = false;
                     }
 
                     try {
@@ -81,13 +83,15 @@ public class ConsumerProducer extends Thread {
                         produce();
 
                         //System.out.println("Consumers waiting : " + someConsumerWaiting);
-                        // Wake up consumer
-                        if (someConsumerWaiting) {
-                            o.notifyAll();
-                            someConsumerWaiting = false;
-                        }
 
                     }
+
+                    // Wake up consumer
+                    if (someConsumerWaiting) {
+                        o.notifyAll();
+                        someConsumerWaiting = false;
+                    }
+
                     try {
                             // Wait
                             someProducerWaiting = true;
@@ -108,12 +112,14 @@ public class ConsumerProducer extends Thread {
        // Grep.o = ""
         ConsumerProducer.storageSpace = 100;
         ConsumerProducer.storageSpaceLeft = 100;
-        ConsumerProducer obj2 = new ConsumerProducer("C" , 3);
+        ConsumerProducer obj2 = new ConsumerProducer("C1" , 4);
+        ConsumerProducer obj4 = new ConsumerProducer("C2" , 4);
         ConsumerProducer obj1 = new ConsumerProducer("P1", 2);
-        ConsumerProducer obj3 = new ConsumerProducer("P2", 1);
+        ConsumerProducer obj3 = new ConsumerProducer("P2", 2);
 
         obj2.start();
         obj1.start();
         obj3.start();
+        obj4.start();
     }
 }
