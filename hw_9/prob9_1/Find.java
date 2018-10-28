@@ -31,6 +31,7 @@ public class Find {
     private String directoryName,fileNameToLookFor,typeOfFile;
     Stack<String> nextInputFlagShouldMatchThis ;
 
+
     /**
      * constructor
      */
@@ -72,9 +73,11 @@ public class Find {
         if (directory!= null && directory.exists()){
             // get the list of all the files / directories in the current directory
             File[] listOfFiles = directory.listFiles();
+            if (listOfFiles == null)
+                return;
             for (File file : listOfFiles){
                 // check if the only directory is to be worked with ? by default utility works with files and directories
-                if (typeOfFile.equals("-d") || !file.isDirectory()){
+                if (typeOfFile.equals("-f")  || (typeOfFile.equals("-d") && file.isDirectory())){
                     try {
                         // this is to read all the basic attributes of the files in one go
                         BasicFileAttributes basicFileAttributes = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
@@ -84,7 +87,7 @@ public class Find {
                         e.printStackTrace();
                     }
                 }
-                else {
+                if (passedFlags.contains("-r")){
                     // means this file is a directory
                     iterateDirectory(file,stringBuilder);
                 }
@@ -232,6 +235,7 @@ public class Find {
         allowedFlags.put("-name",".+");
         allowedFlags.put("-type","-f|-d");
         allowedFlags.put("-date",null);
+        allowedFlags.put("-r",null);
         return allowedFlags;
     }
     // TODO: need to remove the find from the command line argument
