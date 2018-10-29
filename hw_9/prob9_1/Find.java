@@ -243,5 +243,5 @@ public class Find {
         allowedFlags.put("-r",null);
         return allowedFlags;
     }
-    // TODO: need to remove the find from the command line argument
+  
 }

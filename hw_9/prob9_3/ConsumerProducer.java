@@ -193,7 +193,7 @@ public class ConsumerProducer extends Thread {
      * Main function.
      */
     public static void main(String args[]) {
-
+        // optimal number of threads = 2
         int num_consumers = 2;
         int num_producers = 2;
         int num_produced = 4;
