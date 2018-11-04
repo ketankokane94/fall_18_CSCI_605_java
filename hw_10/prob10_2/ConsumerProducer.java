@@ -7,6 +7,8 @@
  *          1.0
  */
 
+import java.util.ArrayList;
+
 /**
  * Program to use multithreading to create producers producing items and consumers consuming them
  * while notifying each other.
@@ -18,56 +20,79 @@
 
 public class ConsumerProducer extends Thread {
     String threadName;
+    static ArrayList<Integer> item1;
+    static ArrayList<Integer>  item2;
+    static ArrayList<Integer>  item3;
 
     // Static variable on which we synchronize.
     static String o = "";
     // number of items produced or consumed
-    int howMany;
+    int itemsThreadCanProduceInOneGo;
 
     static int storageSpaceLeft;
     static int storageSpace;
 
-    static boolean someConsumerWaiting;
-    static boolean someProducerWaiting;
+    static boolean someConsumerWaiting = false;
+    static boolean someProducerWaiting = false;
 
     // Number of times production or consumption happens
-    static int count;
+    static int count = 0;
 
     /**
      * Constructor
      * @param threadName String with C or P indicating Consumer or Producer
-     * @param howMany number of items to produce or consume at a time
+     * @param itemsThreadCanProduceInOneGo number of items to produce or consume at a time
      */
-    public ConsumerProducer(String threadName, int howMany) {
+    public ConsumerProducer(String threadName, int itemsThreadCanProduceInOneGo) {
         this.threadName = threadName;
-        this.howMany = howMany;
-        someConsumerWaiting = false;
-        someProducerWaiting = false;
-        count = 0;
+        this.itemsThreadCanProduceInOneGo = itemsThreadCanProduceInOneGo;
     }
 
     /**
-     * Helper function to update storage and other threadName on production of howMany items
+     * Helper function to update storage and other threadName on production of itemsThreadCanProduceInOneGo items
      */
     public void produce() {
         // Produce
-        storageSpaceLeft -= howMany;
+        if (item1.size() + itemsThreadCanProduceInOneGo <= storageSpace){
+            for (int i = 0; i < 3; i++) {
+                item1.add(1);
+            }
+        }
+        if (item2.size() + itemsThreadCanProduceInOneGo <= storageSpace){
+            for (int i = 0; i < 5; i++) {
+                item2.add(1);
+            }
+        }
+
+        if (item3.size() + itemsThreadCanProduceInOneGo <= storageSpace){
+            for (int i = 0; i < 2; i++) {
+                item3.add(1);
+            }
+        }
 
         count++;
 
-        System.out.println(count + ". " + threadName + " produced " + howMany);
+        System.out.println(count + ". " + threadName + " produced " );
     }
 
     /**
-     * Helper function to update storage and other threadName on consumption of howMany items
+     * Helper function to update storage and other threadName on consumption of itemsThreadCanProduceInOneGo items
      */
     public void consume() {
         // Consume
-        storageSpaceLeft += howMany;
+        for (int i = 0; i < 3 ; i++) {
+            item1.remove(0);
+        }
+        for (int i = 0; i < 5 ; i++) {
+            item2.remove(0);
+        }
+        for (int i = 0; i < 2 ; i++) {
+            item3.remove(0);
+        }
 
         count++;
 
-        System.out.println(count + ". " + threadName + " consumed " + howMany);
+        System.out.println(count + ". " + threadName + " consumed " );
     }
 
     /**
@@ -79,7 +104,7 @@ public class ConsumerProducer extends Thread {
         // Loop to make process happen in tandem endlessly
         while (true) {
             synchronized (o) {
-                if (count == 10000) {
+                if (count == 1000) {
                     // Notify any thread that is waiting since
                     // we have finished process as many times as count
                     o.notifyAll();
@@ -89,9 +114,9 @@ public class ConsumerProducer extends Thread {
                 // For consumer
                 if (threadName.contains("C")) {
                     // storageSpace - storageSpaceLeft gives number of items in storage
-                    if (storageSpace - storageSpaceLeft >= howMany) {
+                    if (item1.size() >= 3 && item2.size() >= 5 && item3.size() >=2) {
 
-                        // Consume if number of items in storage is atleast = howMany
+
                         consume();
 
                         //System.out.println("Producers waiting : " + someProducerWaiting);
@@ -121,14 +146,14 @@ public class ConsumerProducer extends Thread {
                 }
                 // For producer
                 else if (threadName.contains("P")) {
-                    if (storageSpaceLeft >= howMany) {
 
-                        // Produce if number of spaces available is atleast = howMany
+
+                        // Produce if number of spaces available is atleast = itemsThreadCanProduceInOneGo
                         produce();
 
                         //System.out.println("Consumers waiting : " + someConsumerWaiting);
 
-                    }
+
 
                     /* Wake up consumers if any waiting */
                     if (someConsumerWaiting) {
@@ -141,7 +166,7 @@ public class ConsumerProducer extends Thread {
                             /* Wait */
 
                             someProducerWaiting = true;
-                            //System.out.println(threadName + " waiting");
+                           // System.out.println(threadName + " waiting");
                             o.wait();
 
                         } catch (InterruptedException ie) {
@@ -192,9 +217,12 @@ public class ConsumerProducer extends Thread {
     public static void main(String args[]) {
         // optimal number of threads = 2
         int num_consumers = 2;
-        int num_producers = 2;
+        int num_producers = 1;
         int num_produced = 4;
         int num_consumed = 4;
+        item1 = new ArrayList<>(100);
+        item2 = new ArrayList<>(100);
+        item3 = new ArrayList<>(100);
 
         if (args.length < 5) {
             ConsumerProducer.storageSpace = 100;
