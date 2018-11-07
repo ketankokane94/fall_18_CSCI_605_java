@@ -48,6 +48,7 @@ import java.util.regex.Pattern;
 
 public class LE {
 
+
     //The number of characters that may be read.
     private static final int READ_AHEAD_LIMIT = 100_000_000;
 
@@ -67,9 +68,13 @@ public class LE {
             usage();
             return;
         }
-        
+        // try with resources, initialse a Buffered Reader to read a file
         try (BufferedReader reader = new BufferedReader(
                 new FileReader(args[0]))) {
+            //meaning, store READ_AHEAD_LIMIT this many chars in buffer, so that
+            //it can be read again. this is to avoid making IO operation
+            // mark just marks, reset is the function which actually brings the buffer back
+            // to the mark position
             reader.mark(READ_AHEAD_LIMIT);
             /*
              * Statistics can be gathered in four passes using a built-in API.
@@ -97,8 +102,14 @@ public class LE {
          * method.
          * Length of the stream is counted by count().
          */
+        // TODO
         System.out.println("Character count = "
-                + reader.lines().flatMapToInt(String::chars).count());
+                + reader.lines().flatMapToInt(
+                // this is accessing methods using lamda expressions
+                // this is calling the chars method of String class
+                        String::chars
+
+        ).count());
         /*
          * Input is read as a stream of lines by lines().
          * Every line is split by nonWordPattern into words by flatMap(...)
@@ -122,11 +133,14 @@ public class LE {
 
     private static void collectInOnePass(BufferedReader reader) {
 
+
         LEStatistics wc = reader.lines().parallel()
                 .collect(LEStatistics::new,
                         LEStatistics::accept,
                         LEStatistics::combine);
         System.out.println(wc);
+
+
     }
 
     private static void usage() {
@@ -154,7 +168,10 @@ public class LE {
             count1 += line.length();
             count3++;
             count2 += nonWordPattern.splitAsStream(line)
-                    .filter(str -> !str.isEmpty()).count();
+                    .filter(
+                            // implements the test method of the predicate interface
+                            str -> !str.isEmpty()
+                    ).count();
             count4 = Math.max(count4, line.length());
         }
 
