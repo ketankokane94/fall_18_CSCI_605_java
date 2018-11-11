@@ -68,7 +68,7 @@ public class LE {
             usage();
             return;
         }
-        // try with resources, initialse a Buffered Reader to read a file
+        // try with resources, initialise a Buffered Reader to read a file
         try (BufferedReader reader = new BufferedReader(
                 new FileReader(args[0]))) {
             //meaning, store READ_AHEAD_LIMIT this many chars in buffer, so that
@@ -102,7 +102,7 @@ public class LE {
          * method.
          * Length of the stream is counted by count().
          */
-        // TODO
+       
         System.out.println("Character count = "
                 + reader.lines().flatMapToInt(
                 // this is accessing methods using lamda expressions
