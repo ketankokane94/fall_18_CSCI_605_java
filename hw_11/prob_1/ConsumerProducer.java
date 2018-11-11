@@ -8,7 +8,6 @@
  */
 
 import java.util.ArrayList;
-import java.util.concurrent.Semaphore;
 
 /**
  * Program to use multithreading to create producers producing items and consumers consuming them
@@ -132,33 +131,33 @@ public class ConsumerProducer extends Thread {
                     System.out.println("Consumer Runnig " + item1.size() +" "+ item2.size()+ " "+ item3.size() + "  " +lock.availablePermits()+"  " + canProduce.availablePermits());
                     if (item1.size() >= 2 && item2.size() >= 5 && item3.size() >= 3) {
 
-                        try {
+                        //try {
 
-                            ConsumerRunning.acquire();
+                            ConsumerRunning.acquire(1);
                             lock.acquire(3);
                             consume();
                             canProduce.release(10);
                             lock.release(3);
-                            ConsumerRunning.release();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+                            ConsumerRunning.release(1);
+                        //} catch (InterruptedException e) {
+                        //    e.printStackTrace();
+                        //}
 
                     }
                 }
                 else if (threadName.contains("P")) {
                     // Produce if number of spaces available is atleast = itemsThreadCanProduceInOneGo
-                    try {
+                    //try {
                         // can producer produce any more ?
                         canProduce.acquire(itemsThreadCanProduceInOneGo);
                          //int itemToProduce = getItemToProduce();
-                        lock.acquire();
+                        lock.acquire(1);
                         produce();
-                        lock.release();
+                        lock.release(1);
 
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    //} catch (InterruptedException e) {
+                    //    e.printStackTrace();
+                    //}
                     // int itemToProduce = getItemToProduce();
 
                 }
