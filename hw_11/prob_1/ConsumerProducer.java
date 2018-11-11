@@ -9,37 +9,37 @@
 
 import java.util.ArrayList;
 
+
 /**
- * Program to use multithreading to create producers producing items and consumers consuming them
- * while notifying each other.
+ * simple implementation of consumer producer problem using semaphores
  * @author Ketan Balbhim Kokane
  * @author Ameya Deepak Nagnur
  */
 
 /**
- * how should the working be
- * consumer should consume only when items are full
- *
- * if 3 producers then all 3 should produce simultaneously
+ * working:
+ * producers can produce 3 different items, consumer can consume only when certain number of items are present,
+ * in this instance 2 of item1 5 of item2 3 of item3. In one go.
+ * Used one single semaphore to maintain the working of the producer and consumer, resulting that no two threads can work simultaneously
  */
 
 
 public class ConsumerProducer extends Thread {
-    String threadName;
-
-    // arrayList where prdducers can produce items
-    static ArrayList<Integer> item1;
-    static ArrayList<Integer>  item2;
-    static ArrayList<Integer>  item3;
-    static ArrayList<Integer> sequenceOfItemProduction;
-
-    // Static variable on which we synchronize.
-    static Semaphore ConsumerRunning = new Semaphore(1);
-    static Semaphore lock = new Semaphore(3);
-    static Semaphore canProduce = new Semaphore(100);
+    // name of thread P<Integer> or C<Integer>
+    final String threadName;
 
     // number of items produced or consumed
-    int itemsThreadCanProduceInOneGo;
+    final int itemsThreadCanProduceInOneGo;
+
+    // array list to store the items which would accessed by producer and consumer
+    static ArrayList<Integer> item1;
+    static ArrayList<Integer> item2;
+    static ArrayList<Integer> item3;
+
+
+    // Static Semaphore on which the implementation is synchronized.
+    static Semaphore mutex = new Semaphore(1);
+
 
     // Number of times production or consumption happens
     static int count = 0;
@@ -49,34 +49,33 @@ public class ConsumerProducer extends Thread {
      * @param threadName String with C or P indicating Consumer or Producer
      * @param itemsThreadCanProduceInOneGo number of items to produce or consume at a time
      */
+
     public ConsumerProducer(String threadName, int itemsThreadCanProduceInOneGo) {
         this.threadName = threadName;
         this.itemsThreadCanProduceInOneGo = itemsThreadCanProduceInOneGo;
     }
 
     /**
-     * Helper function to update storage and other threadName on production of itemsThreadCanProduceInOneGo items
-     * @param itemToProduce
+     * Helper function to produce the required item when the producer is running.
      */
     public void produce() {
         int itemToProduce =  getItemToProduce();
         // Produce
         switch (itemToProduce){
             case 1:{
+                // TODO change 100 to a variable
+
                 if (item1.size() + itemsThreadCanProduceInOneGo <= 100){
                     for (int i = 0; i < itemsThreadCanProduceInOneGo; i++) {
-                        item1.add(1);
+                        item1.add(0,1);
                     }
-                }
-                else{
-
                 }
                 break;
             }
             case 2:{
                 if (item2.size() + itemsThreadCanProduceInOneGo <= 100){
                     for (int i = 0; i < itemsThreadCanProduceInOneGo; i++) {
-                        item2.add(1);
+                        item2.add(0,1);
                     }
                 }
                 break;
@@ -84,12 +83,9 @@ public class ConsumerProducer extends Thread {
             case 3:{
                 if (item3.size() + itemsThreadCanProduceInOneGo <= 100){
                     for (int i = 0; i < itemsThreadCanProduceInOneGo; i++) {
-                        item3.add(1);
+                        item3.add(0,1);
                     }
                 }
-                break;
-            }
-            default:{
                 break;
             }
         }
@@ -97,85 +93,67 @@ public class ConsumerProducer extends Thread {
         System.out.println(count + ". " + threadName + " produced item "+ itemToProduce );
     }
 
+
     /**
-     * Helper function to update storage and other threadName on consumption of itemsThreadCanProduceInOneGo items
+     * Helper function Consume the items produced by the producer
      */
     public void consume() {
-        // Consume
-        for (int i = 0; i < 2 ; i++) {
+        System.out.println(count + ". " + threadName + " consumed " );
+        for (int i = 0; i < 2 && item1.size() > 0; i++) {
             item1.remove(0);
         }
-        for (int i = 0; i < 5 ; i++) {
+
+        System.out.println(item2.size());
+
+        for (int i = 0; i < 5 && item2.size() > 0 ; i++) {
             item2.remove(0);
         }
-        for (int i = 0; i < 3 ; i++) {
+
+        for (int i = 0; i < 3  && item3.size() > 0 ; i++) {
             item3.remove(0);
         }
 
         count++;
 
-        System.out.println(count + ". " + threadName + " consumed " );
     }
 
-    /**
-     * Run method for the threads
-     */
     public void run()
     {
 
-        // Loop to make process happen in tandem endlessly
         while (true) {
-                // For consumer
+                mutex.acquire(1);
                 if (threadName.contains("C")) {
-                    // storageSpace - storageSpaceLeft gives number of items in storage
-                    System.out.println("Consumer Runnig " + item1.size() +" "+ item2.size()+ " "+ item3.size() + "  " +lock.availablePermits()+"  " + canProduce.availablePermits());
                     if (item1.size() >= 2 && item2.size() >= 5 && item3.size() >= 3) {
-
-                        //try {
-
-                            ConsumerRunning.acquire(1);
-                            lock.acquire(3);
-                            consume();
-                            canProduce.release(10);
-                            lock.release(3);
-                            ConsumerRunning.release(1);
-                        //} catch (InterruptedException e) {
-                        //    e.printStackTrace();
-                        //}
-
+                        consume();
                     }
                 }
-                else if (threadName.contains("P")) {
-                    // Produce if number of spaces available is atleast = itemsThreadCanProduceInOneGo
-                    //try {
-                        // can producer produce any more ?
-                        canProduce.acquire(itemsThreadCanProduceInOneGo);
-                         //int itemToProduce = getItemToProduce();
-                        lock.acquire(1);
+                else
+                    if (threadName.contains("P")) {
                         produce();
-                        lock.release(1);
-
-                    //} catch (InterruptedException e) {
-                    //    e.printStackTrace();
-                    //}
-                    // int itemToProduce = getItemToProduce();
-
                 }
+                mutex.release(1);
         }
     }
 
+    /**
+     * helper function to decide which item has to be produced next
+     * @return
+     */
     private int getItemToProduce()  {
 
+        // if item 2 is running low produce item2
         if (item2.size()-5 <= 5)
             return 2;
 
+        // if item 3 is running low produce item2
         if (item3.size()-3 <= 3)
             return 3;
 
+        // if item 1 is running low produce item2
         if (item1.size()-2 <= 2)
             return 1;
 
-
+    // based on the size decide which item should be produced next
         if (item1.size() < item2.size()){
             if(item1.size() < item3.size()){
                 return 1;
@@ -212,8 +190,8 @@ public class ConsumerProducer extends Thread {
             int a4 = Integer.parseInt(argument4);
         }
         catch (NumberFormatException notIntException) {
-            //notIntException.printStackTrace();
-           // throw new NoNumberArgumentException("Argument is not a number");
+            notIntException.printStackTrace();
+            throw new NoNumberArgumentException("Argument is not a number");
         }
 
     }
@@ -224,7 +202,7 @@ public class ConsumerProducer extends Thread {
     public static void areArgumentsNegative(int argument0, int argument1, int argument2, int argument3, int argument4) throws NegativeNumberArgumentException {
 
         if (argument0 < 0 || argument1 < 0 || argument2 < 0 || argument3 < 0 || argument4 < 0) {
-           // throw new NegativeNumberArgumentException("Argument is negative");
+            throw new NegativeNumberArgumentException("Argument is negative");
         }
     }
 
@@ -233,17 +211,14 @@ public class ConsumerProducer extends Thread {
      */
     public static void main(String args[]) {
         // optimal number of threads = 2
-        int num_consumers = 1;
+        int num_consumers = 2;
         int num_producers = 3;
         int num_produced = 4;
         int num_consumed = 4;
         item1 = new ArrayList<>(100);
         item2 = new ArrayList<>(100);
         item3 = new ArrayList<>(100);
-        sequenceOfItemProduction = new ArrayList<>(3);
-        sequenceOfItemProduction.add(1);
-        sequenceOfItemProduction.add(2);
-        sequenceOfItemProduction.add(3);
+
 
         if (args.length < 5) {
            // ConsumerProducer.storageSpace = 100;
@@ -306,13 +281,5 @@ public class ConsumerProducer extends Thread {
         for (int producerCount = 0; producerCount < num_producers; producerCount++) {
             producers[producerCount].start();
         }
-
-        /*ConsumerProducer obj1 = new ConsumerProducer("P1", 2);
-        ConsumerProducer obj3 = new ConsumerProducer("P2", 2);
-
-        obj2.start();
-        obj1.start();
-        obj3.start();
-        obj4.start();*/
     }
 }
