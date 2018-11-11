@@ -35,7 +35,7 @@ public class ConsumerProducer extends Thread {
     static ArrayList<Integer> item1;
     static ArrayList<Integer> item2;
     static ArrayList<Integer> item3;
-
+    static int capacityOfBuffer;
 
     // Static Semaphore on which the implementation is synchronized.
     static Semaphore mutex = new Semaphore(1);
@@ -63,9 +63,7 @@ public class ConsumerProducer extends Thread {
         // Produce
         switch (itemToProduce){
             case 1:{
-                // TODO change 100 to a variable
-
-                if (item1.size() + itemsThreadCanProduceInOneGo <= 100){
+                if (item1.size() + itemsThreadCanProduceInOneGo <= capacityOfBuffer){
                     for (int i = 0; i < itemsThreadCanProduceInOneGo; i++) {
                         item1.add(0,1);
                     }
@@ -73,7 +71,7 @@ public class ConsumerProducer extends Thread {
                 break;
             }
             case 2:{
-                if (item2.size() + itemsThreadCanProduceInOneGo <= 100){
+                if (item2.size() + itemsThreadCanProduceInOneGo <= capacityOfBuffer){
                     for (int i = 0; i < itemsThreadCanProduceInOneGo; i++) {
                         item2.add(0,1);
                     }
@@ -81,7 +79,7 @@ public class ConsumerProducer extends Thread {
                 break;
             }
             case 3:{
-                if (item3.size() + itemsThreadCanProduceInOneGo <= 100){
+                if (item3.size() + itemsThreadCanProduceInOneGo <= capacityOfBuffer){
                     for (int i = 0; i < itemsThreadCanProduceInOneGo; i++) {
                         item3.add(0,1);
                     }
@@ -102,9 +100,7 @@ public class ConsumerProducer extends Thread {
         for (int i = 0; i < 2 && item1.size() > 0; i++) {
             item1.remove(0);
         }
-
-        System.out.println(item2.size());
-
+        
         for (int i = 0; i < 5 && item2.size() > 0 ; i++) {
             item2.remove(0);
         }
@@ -178,16 +174,15 @@ public class ConsumerProducer extends Thread {
     /**
      * Checks if any argument is a non number then throw the exception
      */
-    public static void areArgumentsNumbers(String argument0, String argument1, String argument2, String argument3, String argument4) throws NoNumberArgumentException {
+    public static void areArgumentsNumbers(String argument0, String argument1, String argument2, String argument3) throws NoNumberArgumentException {
 
         // Integer.parseInt will throw an exception if non int provided to it
         // Hence we throw an exception when Integer's exception is caught.
         try {
-            int a0 = Integer.parseInt(argument0);
-            int a1 = Integer.parseInt(argument1);
-            int a2 = Integer.parseInt(argument2);
-            int a3 = Integer.parseInt(argument3);
-            int a4 = Integer.parseInt(argument4);
+            Integer.parseInt(argument0);
+            Integer.parseInt(argument1);
+            Integer.parseInt(argument2);
+            Integer.parseInt(argument3);
         }
         catch (NumberFormatException notIntException) {
             notIntException.printStackTrace();
@@ -199,9 +194,9 @@ public class ConsumerProducer extends Thread {
     /**
      * Checks if any argument is negative then throw an exception.
      */
-    public static void areArgumentsNegative(int argument0, int argument1, int argument2, int argument3, int argument4) throws NegativeNumberArgumentException {
+    public static void areArgumentsNegative(int argument0, int argument1, int argument2, int argument3) throws NegativeNumberArgumentException {
 
-        if (argument0 < 0 || argument1 < 0 || argument2 < 0 || argument3 < 0 || argument4 < 0) {
+        if (argument0 < 0 || argument1 < 0 || argument2 < 0 || argument3 < 0) {
             throw new NegativeNumberArgumentException("Argument is negative");
         }
     }
@@ -210,42 +205,38 @@ public class ConsumerProducer extends Thread {
      * Main function.
      */
     public static void main(String args[]) {
-        // optimal number of threads = 2
+
         int num_consumers = 2;
         int num_producers = 3;
         int num_produced = 4;
-        int num_consumed = 4;
-        item1 = new ArrayList<>(100);
-        item2 = new ArrayList<>(100);
-        item3 = new ArrayList<>(100);
 
 
-        if (args.length < 5) {
-           // ConsumerProducer.storageSpace = 100;
-          //  ConsumerProducer.storageSpaceLeft = 100;
+        if (args.length < 4) {
+            capacityOfBuffer = 100;
         }
         else {
-            int argument0, argument1, argument2, argument3, argument4;
+            int argument0, argument1, argument2, argument3;
 
             try {
 
                 /* Throw exceptions */
-                areArgumentsNumbers(args[0], args[1], args[2], args[3], args[4]);
+                areArgumentsNumbers(args[0], args[1], args[2], args[3]);
 
                 argument0 = Integer.parseInt(args[0]);
                 argument1 = Integer.parseInt(args[1]);
                 argument2 = Integer.parseInt(args[2]);
                 argument3 = Integer.parseInt(args[3]);
-                argument4 = Integer.parseInt(args[4]);
 
-                areArgumentsNegative(argument0, argument1, argument2, argument3, argument4);
+                areArgumentsNegative(argument0, argument1, argument2, argument3);
 
-               // ConsumerProducer.storageSpace = argument4;
-               // ConsumerProducer.storageSpaceLeft = argument4;
                 num_consumers = argument0;
                 num_producers = argument1;
-                num_consumed = argument2;
-                num_produced = argument3;
+                num_produced = argument2;
+                capacityOfBuffer = argument3;
+                if (num_produced > capacityOfBuffer){
+                    System.err.println("Buffer underflow");
+                    System.exit(1);
+                }
 
             }
             catch (NoNumberArgumentException noNumberArgumentException) {
@@ -257,12 +248,15 @@ public class ConsumerProducer extends Thread {
                 System.exit(0);
             }
         }
+        item1 = new ArrayList<>(capacityOfBuffer);
+        item2 = new ArrayList<>(capacityOfBuffer);
+        item3 = new ArrayList<>(capacityOfBuffer);
 
         // Create consumers
         ConsumerProducer consumers[] = new ConsumerProducer[num_consumers];
 
         for (int consumerCount = 0; consumerCount < num_consumers; consumerCount++) {
-            consumers[consumerCount] = new ConsumerProducer("C" + (consumerCount + 1), num_consumed);
+            consumers[consumerCount] = new ConsumerProducer("C" + (consumerCount + 1), 0);
         }
 
         // Create producers
