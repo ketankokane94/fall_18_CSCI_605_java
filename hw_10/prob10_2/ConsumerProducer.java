@@ -149,7 +149,7 @@ public class ConsumerProducer extends Thread {
 
 
                         // Produce if number of spaces available is atleast = itemsThreadCanProduceInOneGo
-                        produce();
+                        produce(getItemToProduce());
 
                         //System.out.println("Consumers waiting : " + someConsumerWaiting);
 
