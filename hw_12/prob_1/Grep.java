@@ -13,25 +13,20 @@
  * @author Ameya Deepak Nagnur
  */
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Stack;
-import java.util.regex.Pattern;
+import java.util.*;
+
 
 public class Grep {
     // mark this as static because all instances of find will have the same allowed flags
     private static HashMap<String,String> allowedFlags;
     private List<String> passedFlags;
-    private String directoryName,fileNameToLookFor,typeOfFile;
+    private String wordToLookFor;
+    private List<String> fileNames;
+    private int output_code;
+
     Stack<String> nextInputFlagShouldMatchThis ;
 
-
+    // grep -c one input.txt
     /**
      * constructor
      */
@@ -44,98 +39,78 @@ public class Grep {
      * @param args
      */
     public static void main(String args[]) {
+        Scanner scanner = new Scanner(System.in);
         // parse the argument
-        Grep grep = new Grep();
+        while(true){
+            Grep grep = new Grep();
+            grep.output_code = grep.run(scanner);
+            // handle echo here somewhere
+        }
+
+    }
+
+    private int run(Scanner scanner) {
         try {
-            grep.parseTheArguments(args);
-            // do some execution only if the directory on which operation is to be done exists and there is some operation
-            // which needs to be performed
-            if (grep.checkIfTheProvidedDirectoryExists() && (grep.passedFlags != null && grep.passedFlags.size() > 0)){
-                grep.execute();
+            // show % sign
+            System.out.print("% ");
+            // get the input from user
+            String input = scanner.nextLine();
+            // convert it to string array and pass it to parse method
+            parseTheArguments(input.split(" "));
+            // do some execution only if  there is some operation which needs to be performed
+            if (passedFlags != null && passedFlags.size() > 0 && !wordToLookFor.isEmpty()){
+                // the operation is to be performed on the files or the std input
+                if (fileNames.size() > 1 && filesExists() || passedFlags.contains("-"))
+                return execute();
             }
-            else {
-                throw new FileNotFoundException("Provided directory does not exist  "+ grep.directoryName);
-            }
+
         } catch (InValidCommandException e) {
             System.err.println(e.getMessage());
-        } catch (FileNotFoundException e) {
-            System.err.println(e.getMessage());
+            return 1;
         }
-
+        return 0;
     }
 
-    /**
-     * function which iterates through a given directory and performs actions based on given commands
-     * @param directory
-     * @param stringBuilder
-     */
-    private void iterateDirectory(File directory, StringBuilder stringBuilder) {
-        if (directory!= null && directory.exists()){
-            // get the list of all the files / directories in the current directory
-            File[] listOfFiles = directory.listFiles();
-            if (listOfFiles == null)
-                return;
-            for (File file : listOfFiles){
-                // check if the only directory is to be worked with ? by default utility works with files and directories
-                if (typeOfFile.equals("-f")  || (typeOfFile.equals("-d") && file.isDirectory())){
-                    try {
-                        // this is to read all the basic attributes of the files in one go
-                        BasicFileAttributes basicFileAttributes = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
-
-                        executePassedFlagsCommand(file,basicFileAttributes,stringBuilder);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (passedFlags.contains("-r")){
-                    // means this file is a directory
-                    iterateDirectory(file,stringBuilder);
-                }
-            }
+    private boolean filesExists() {
+        boolean returnValue = true;
+        for (String filename : fileNames){
+            File file = new File(filename);
+            returnValue &= file.exists() && file.isFile();
         }
+        return returnValue;
     }
 
-    /**
-     *  does the job of printing required information about the files
-     * @param file
-     * @param basicFileAttributes
-     * @param stringBuilder
-     */
-    private void executePassedFlagsCommand(File file, BasicFileAttributes basicFileAttributes, StringBuilder stringBuilder) {
-        // -name states that work with only files whoes name matches the given regex
-        if (passedFlags.contains("-name") && !file.getName().contains(fileNameToLookFor)){
-            // means name parameter was provided and current file name does not match the
-            // file name user is looking for
-            return;
 
-        }
-        stringBuilder.append(padRight(file.getName(),20)).append("\t");
-
-        for(String flag : passedFlags){
-            switch (flag){
-                case "-length": {
-                    stringBuilder.append(padRight(String.valueOf(basicFileAttributes.size()),10));
-                    break;
-                }
-                case "-date":{
-                    stringBuilder.append(padRight(new SimpleDateFormat().format(basicFileAttributes.lastModifiedTime().toMillis()),30));
-                    break;
-                }
-            }
-            stringBuilder.append("\t");
-        }
-        stringBuilder.append("\n");
-    }
-
-    /**
-     * function which starts the iterative call to list all the directories
-     * and prints the result
-     */
-    private void execute() {
+    private int execute() {
         StringBuilder stringBuilder =  new StringBuilder();
-        File directory = new File(directoryName);
-        iterateDirectory(directory,stringBuilder);
-        printResult(stringBuilder);
+        executePassedFlagsCommand(stringBuilder);
+        //printResult(stringBuilder);
+        return 0;
+    }
+
+    private void executePassedFlagsCommand(StringBuilder stringBuilder) {
+        /*
+        passedFlags.forEach(
+         );
+         */
+    for (String flag: passedFlags){
+        switch (flag){
+            case "-c":{
+
+                break;
+            }
+            case "-w":{
+                break;
+            }
+            case "-q":{
+                break;
+            }
+            case "-l":{
+                break;
+            }
+
+        }
+    }
     }
 
     /**
@@ -147,86 +122,57 @@ public class Grep {
     }
 
     /**
-     * checks if the directory provided by the user exists or no
-     * @return
-     * @throws InValidCommandException
-     */
-    private  boolean checkIfTheProvidedDirectoryExists() throws InValidCommandException {
-        if (directoryName!=null && !directoryName.isEmpty()){
-            return new File(directoryName).exists();
-        }else {
-            throw new InValidCommandException("No Directory was passed");
-        }
-    }
-
-
-    public static String padRight(String s, int n) {
-        return String.format("%1$-" + n + "s", s);
-    }
-
-    /**
      * main parser of the utility which handles the argument passed by the user and converts them to what utiliity requires
      * @param commandLineParameters
      * @throws InValidCommandException
      */
     public void parseTheArguments(String[] commandLineParameters) throws InValidCommandException {
 
-        directoryName="";
-        fileNameToLookFor="";
-        typeOfFile="-f"; // by default look for file, if -d look for directories
         passedFlags = new ArrayList<>();
         nextInputFlagShouldMatchThis = new Stack<>();
+        fileNames = new ArrayList<>();
+        wordToLookFor = "";
 
-        // Director [-some_flag ] hence the minimum length is 2
+        /*
         if (commandLineParameters.length < 2) {
             throw new InValidCommandException("InValid Command " + String.join(" ", commandLineParameters));
         }
+         */
 
-        // directory name is always the 1 param, this can be kept dynamic by adding the -flag to specify the same
-        directoryName = commandLineParameters[0];
+        /*
+        grep -c one input.txt
+        grep -w -c one input.txt # -w specifies words
+        grep -w -c -s one input.txt
+        grep -q one input.txt
+        grep -l one input.txt
+        % grep one input.txt - input.txt
 
-        String option;
-        // iterate through the rest of the parameters , things that can be found are flags and there corresponding values
-        // so ex -type -f, so once type is encountered its known that next symbol is either -f -d
-        // so used stack to remember the previous flag and used regex to match the current expected flag
+input.txt:one one one one
+input.txt:one
+input.txt:oneoneoneone
+one
+(standard input):one
+input.txt:one one one one
+input.txt:one
+input.txt:oneoneoneone
+         */
         for (int index = 1; index < commandLineParameters.length; index++) {
             String flag = commandLineParameters[index];
-            if (!nextInputFlagShouldMatchThis.empty()) {
-                // if stack is not empty means the current flag is dependent on previous, use regex to match the flag
-                if(!Pattern.matches(nextInputFlagShouldMatchThis.pop(),flag)){
-                    throw new InValidCommandException(nextInputFlagShouldMatchThis.peek() + " cannot be followed "+ flag);
+            if (allowedFlags.containsKey(flag)) {
+                passedFlags.add(flag);
+            }
+            else {
+                if (wordToLookFor.isEmpty()){
+                    wordToLookFor = flag;
                 }
                 else {
-                    checkIfTheValueNeedsToBeStored(flag);
-                }
-            } else if (allowedFlags.containsKey(flag)) {
-                passedFlags.add(flag);
-                option = allowedFlags.get(flag);
-                if (option != null) {
-                    nextInputFlagShouldMatchThis.push(flag);
-                    nextInputFlagShouldMatchThis.push(option);
+                    fileNames.add(flag);
                 }
             }
         }
     }
 
-    /**
-     * helper function which stores the values of the flags provided by the user
-     * @param flag
-     */
-    private void checkIfTheValueNeedsToBeStored(String flag) {
-        String previousFlag = nextInputFlagShouldMatchThis.pop();
-        switch (previousFlag){
-            case "-type" :
-            {
-                typeOfFile = flag;break;
-            }
-            case "-name":
-            {
-                fileNameToLookFor = flag;break;
-            }
-        }
-    }
+
 
     /**
      *  stores all the flags that the utility has implemented
@@ -240,6 +186,7 @@ public class Grep {
         allowedFlags.put("-c",null);
         allowedFlags.put("-w",null);
         allowedFlags.put("-q",null);
+        allowedFlags.put("-",null);
         return allowedFlags;
     }
 
