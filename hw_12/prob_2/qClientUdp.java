@@ -1,21 +1,29 @@
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
+import java.net.*;
 
 public class qClientUdp extends Thread{
-
-    Socket socket;
+    DatagramSocket socket;
+    int port;
 
     public qClientUdp(int port) throws IOException {
-             socket = new Socket(InetAddress.getLocalHost(),port);
+             socket = new DatagramSocket();
+             this.port = port;
     }
+
     public void run(){
         try {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            System.out.println(bufferedReader.readLine());
+            byte [] buffer = new byte[1000];
+            DatagramPacket packet = new DatagramPacket(buffer,buffer.length);
+            packet.setAddress(InetAddress.getLocalHost());
+            packet.setPort(port);
+            packet.setData("GG".getBytes());
+            socket.send(packet);
+
+            packet = new DatagramPacket(buffer,buffer.length);
+            socket.receive(packet);
+
+            buffer = packet.getData();
+            System.out.println(new Helper().convertToString(buffer));
             socket.close();
         } catch (IOException e) {
             e.printStackTrace();

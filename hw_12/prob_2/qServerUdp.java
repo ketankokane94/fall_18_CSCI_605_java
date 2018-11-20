@@ -1,32 +1,37 @@
-import java.awt.desktop.QuitEvent;
 import java.io.*;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 public class qServerUdp extends Thread{
-    ServerSocket server;
+    DatagramSocket server;
     List<String> Quotes ;
 
     public qServerUdp(int portNumber) throws IOException {
-        server = new ServerSocket(portNumber);
+        server = new DatagramSocket(portNumber);
         read();
-        System.out.println("server started listening on "+server.getInetAddress() + " on port " + server.getLocalPort());
+        System.out.println("server started listening on "+ server.getInetAddress() + " on port " + server.getLocalPort());
 
     }
 
     public void run(){
+        byte [] buffer;
         try {
             while (true) {
+                buffer = new byte[1000];
+                DatagramPacket datagramPacket = new DatagramPacket(buffer,buffer.length);
+                server.receive(datagramPacket);
+                if (new Helper().convertToString(datagramPacket.getData()).equals("GG")){
+                    System.out.println("a new client connected to the server");
+                    InetAddress clientAddress = datagramPacket.getAddress();
+                    int clienrPort = datagramPacket.getPort();
+                    buffer = Quotes.get(new Random().nextInt(Quotes.size())).getBytes();
+                    datagramPacket = new DatagramPacket(buffer,buffer.length,clientAddress,clienrPort);
+                    server.send(datagramPacket);
 
-                Socket client = server.accept();
-                System.out.println("a new client connected to the server");
-                PrintWriter out = new PrintWriter(client.getOutputStream());
-                out.println(Quotes.get(new Random().nextInt(Quotes.size())));
-                System.out.println(Quotes.get(((int)Math.random()) % Quotes.size()));
-                out.close();
+                }
+
             }
 
         } catch (IOException e) {
@@ -50,7 +55,7 @@ public class qServerUdp extends Thread{
                         sb = new StringBuilder();
                     }
                     else {
-                        sb.append(line);
+                        sb.append(line).append("\n");
                     }
 
             }
@@ -60,6 +65,7 @@ public class qServerUdp extends Thread{
             e.printStackTrace();
         }
     }
+
 
     public static void main(String args[]){
         try {
