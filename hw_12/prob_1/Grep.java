@@ -12,8 +12,10 @@
  * @author Ketan Balbhim Kokane
  * @author Ameya Deepak Nagnur
  */
-import java.io.File;
+import java.io.*;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
 
 
 public class Grep {
@@ -23,10 +25,9 @@ public class Grep {
     private String wordToLookFor;
     private List<String> fileNames;
     private int output_code;
+    private boolean cValue,lValue,wValue;
 
-    Stack<String> nextInputFlagShouldMatchThis ;
 
-    // grep -c one input.txt
     /**
      * constructor
      */
@@ -60,13 +61,15 @@ public class Grep {
             // do some execution only if  there is some operation which needs to be performed
             if (passedFlags != null && passedFlags.size() > 0 && !wordToLookFor.isEmpty()){
                 // the operation is to be performed on the files or the std input
-                if (fileNames.size() > 1 && filesExists() || passedFlags.contains("-"))
+                if (fileNames.size() > 0 && filesExists() || passedFlags.contains("-"))
                 return execute();
             }
 
         } catch (InValidCommandException e) {
             System.err.println(e.getMessage());
             return 1;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
         return 0;
     }
@@ -81,45 +84,79 @@ public class Grep {
     }
 
 
-    private int execute() {
-        StringBuilder stringBuilder =  new StringBuilder();
-        executePassedFlagsCommand(stringBuilder);
-        //printResult(stringBuilder);
+    private int execute() throws FileNotFoundException {
+        BufferedReader bufferedReader;
+        if (passedFlags.contains("-")){
+            System.out.println("please enter the text");
+            bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+        }else {
+            bufferedReader = new BufferedReader(new FileReader(new File(fileNames.get(0))));
+        }
+        setRequiredFlags();
+        executePassedFlagsCommand(bufferedReader);
         return 0;
     }
 
-    private void executePassedFlagsCommand(StringBuilder stringBuilder) {
-        /*
-        passedFlags.forEach(
-         );
-         */
-    for (String flag: passedFlags){
-        switch (flag){
-            case "-c":{
+    private void setRequiredFlags() {
+        for (String flag: passedFlags){
+            switch (flag){
+                case "-c":{
+                    cValue = true;
+                    break;
+                }
+                case "-w":{
+                    wValue = true;
+                    break;
+                }
+                case "-q":{
+                    output_code = 0;
+                    return;
 
-                break;
-            }
-            case "-w":{
-                break;
-            }
-            case "-q":{
-                break;
-            }
-            case "-l":{
-                break;
-            }
+                }
+                case "-l":{
+                    lValue = true;
+                    break;
+                }
 
+            }
         }
     }
+
+    private void executePassedFlagsCommand(BufferedReader reader) {
+        if(passedFlags.contains("-q"))
+        {
+            return;
+        }
+
+        String regexToBeUsed =  wValue ? ".*(^|\\W)" + wordToLookFor + "(\\W|$).*" : ".*" + wordToLookFor + ".*";
+        AtomicInteger count = new AtomicInteger();
+
+        reader.lines().forEach(
+                line -> {
+                    if(Pattern.matches(regexToBeUsed,line)){
+                        if (lValue)
+                        {
+                            System.out.println(fileNames.get(0));
+                            lValue = false;
+                            return;
+                        }
+
+                        if (cValue)
+                            count.getAndIncrement();
+                        else {
+                            System.out.println(line);
+                        }
+                    }
+
+
+                }
+        );
+
+        if (cValue)
+            System.out.println(count);
+
     }
 
-    /**
-     * simple helper function to print the result in required format
-     * @param stringBuilder
-     */
-    private static void printResult(StringBuilder stringBuilder) {
-        System.out.println(stringBuilder.toString());
-    }
 
     /**
      * main parser of the utility which handles the argument passed by the user and converts them to what utiliity requires
@@ -129,33 +166,15 @@ public class Grep {
     public void parseTheArguments(String[] commandLineParameters) throws InValidCommandException {
 
         passedFlags = new ArrayList<>();
-        nextInputFlagShouldMatchThis = new Stack<>();
         fileNames = new ArrayList<>();
         wordToLookFor = "";
 
-        /*
-        if (commandLineParameters.length < 2) {
-            throw new InValidCommandException("InValid Command " + String.join(" ", commandLineParameters));
+        if (commandLineParameters[0].equals("echo"))
+        {
+            System.out.println(output_code);
+            return;
         }
-         */
 
-        /*
-        grep -c one input.txt
-        grep -w -c one input.txt # -w specifies words
-        grep -w -c -s one input.txt
-        grep -q one input.txt
-        grep -l one input.txt
-        % grep one input.txt - input.txt
-
-input.txt:one one one one
-input.txt:one
-input.txt:oneoneoneone
-one
-(standard input):one
-input.txt:one one one one
-input.txt:one
-input.txt:oneoneoneone
-         */
         for (int index = 1; index < commandLineParameters.length; index++) {
             String flag = commandLineParameters[index];
             if (allowedFlags.containsKey(flag)) {
