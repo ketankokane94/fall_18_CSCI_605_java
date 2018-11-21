@@ -92,7 +92,7 @@ public class Producer extends Thread {
     public static void main(String args[]) {
 
         int num_produced = 2;
-        int num_producers = 5;
+        int num_producers = 4;
 
 
         if (args.length < 3) {

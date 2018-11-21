@@ -33,6 +33,8 @@ import java.util.Scanner;
 
 public class Storage extends Thread {
 
+    String line = "";
+
     static int port = 1065;
 
     static ServerSocket serverSocket;
@@ -58,9 +60,8 @@ public class Storage extends Thread {
      * @param itemsThreadCanProduceInOneGo number of items to produce or consume at a time
      */
 
-    public Storage() {
-        //this.threadName = threadName;
-        //this.itemsThreadCanProduceInOneGo = itemsThreadCanProduceInOneGo;
+    public Storage(String line) {
+        this.line = line;
     }
 
     /**
@@ -84,6 +85,45 @@ public class Storage extends Thread {
 
     }
 
+    public void run() {
+
+        /* Logic to update item lists here */
+
+        if(line.charAt(0) == 'C' || line.charAt(0) == 'P') {
+            String lineArray [] = line.split(" ");
+            threadName = lineArray[0];
+
+            if(threadName.contains("C")) {
+                consume();
+            }
+            else {
+                for(int arrayIndex = 1; arrayIndex < lineArray.length; arrayIndex++) {
+                    if (lineArray[arrayIndex].equals("item1")) {
+                        int num_items = Integer.parseInt(lineArray[arrayIndex + 1]);
+                        for (int index = 0; index < num_items; index++) {
+                            item1.add(0, 1);
+                        }
+                        System.out.println("item1 added " + num_items + " times");
+                    }
+                    if (lineArray[arrayIndex].equals("item2")) {
+                        int num_items = Integer.parseInt(lineArray[arrayIndex + 1]);
+                        for (int index = 0; index < num_items; index++) {
+                            item2.add(0, 1);
+                        }
+                        System.out.println("item2 added " + num_items + " times");
+                    }
+                    if (lineArray[arrayIndex].equals("item3")) {
+                        int num_items = Integer.parseInt(lineArray[arrayIndex + 1]);
+                        for (int index = 0; index < num_items; index++) {
+                            item3.add(0, 1);
+                        }
+                        System.out.println("item3 added " + num_items + " times");
+                    }
+                }
+            }
+        }
+    }
+
     public void updateStorage()
     {
 
@@ -93,45 +133,13 @@ public class Storage extends Thread {
                 Socket socket = serverSocket.accept();
 
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                String line = bufferedReader.readLine();
+                line = bufferedReader.readLine();
                 System.out.println("Reading : " + line);
+
+                Storage storage = new Storage(line);
+                storage.start();
+
                 bufferedReader.close();
-
-                /* Logic to update item lists here */
-
-                if(line.charAt(0) == 'C' || line.charAt(0) == 'P') {
-                    String lineArray [] = line.split(" ");
-                    threadName = lineArray[0];
-
-                    if(threadName.contains("C")) {
-                        consume();
-                    }
-                    else {
-                        for(int arrayIndex = 1; arrayIndex < lineArray.length; arrayIndex++) {
-                            if (lineArray[arrayIndex].equals("item1")) {
-                                int num_items = Integer.parseInt(lineArray[arrayIndex + 1]);
-                                for (int index = 0; index < num_items; index++) {
-                                    item1.add(0, 1);
-                                }
-                                System.out.println("item1 added " + num_items + " times");
-                            }
-                            if (lineArray[arrayIndex].equals("item2")) {
-                                int num_items = Integer.parseInt(lineArray[arrayIndex + 1]);
-                                for (int index = 0; index < num_items; index++) {
-                                    item2.add(0, 1);
-                                }
-                                System.out.println("item2 added " + num_items + " times");
-                            }
-                            if (lineArray[arrayIndex].equals("item3")) {
-                                int num_items = Integer.parseInt(lineArray[arrayIndex + 1]);
-                                for (int index = 0; index < num_items; index++) {
-                                    item3.add(0, 1);
-                                }
-                                System.out.println("item3 added " + num_items + " times");
-                            }
-                        }
-                    }
-                }
 
                 socket.close();
                 serverSocket.close();
@@ -180,7 +188,7 @@ public class Storage extends Thread {
             item2 = new ArrayList<>(capacityOfBuffer);
             item3 = new ArrayList<>(capacityOfBuffer);
 
-            Storage newStorage = new Storage();
+            Storage newStorage = new Storage("");
             newStorage.updateStorage();
         //}
     }

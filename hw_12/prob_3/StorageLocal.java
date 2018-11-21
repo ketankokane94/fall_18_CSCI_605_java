@@ -146,9 +146,10 @@ public class StorageLocal extends Thread {
 
         }
         try {
-            Socket socket = new Socket(InetAddress.getLocalHost(), port);
 
-            sleep(2000);
+            sleep(1000);
+
+            Socket socket = new Socket(InetAddress.getLocalHost(), port);
 
             PrintWriter printWriter = new PrintWriter(socket.getOutputStream(), true);
             String write_line = toUpdateServer;

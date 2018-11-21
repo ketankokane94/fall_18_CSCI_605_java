@@ -60,9 +60,9 @@ public class Consumer extends Thread {
 
     public void consume() {
         try {
-            Socket socket = new Socket(InetAddress.getLocalHost(), port);
+            sleep(1000);
 
-            sleep(2000);
+            Socket socket = new Socket(InetAddress.getLocalHost(), port);
 
             PrintWriter printWriter = new PrintWriter(socket.getOutputStream(), true);
             String write_line = threadName;
@@ -79,7 +79,7 @@ public class Consumer extends Thread {
 
     public void run() {
         synchronized (o) {
-            if (threadName.contains("P")) {
+            if (threadName.contains("C")) {
                 consume();
                 o.notifyAll();
                 try {
