@@ -1,5 +1,5 @@
 /**
- * ConsumerProducer.java
+ * StorageLocal.java
  *
  * Version :
  *          1.0
@@ -27,7 +27,7 @@ import java.util.Scanner;
  * working:
  * producers can produce 3 different items, consumer can consume only when certain number of items are present,
  * in this instance 2 of item1 5 of item2 3 of item3. In one go.
- * Used one single semaphore to maintain the working of the producer and consumer, resulting that no two threads can work simultaneously
+ * Sychronized on static object to ensure that one producer completes before other starts
  */
 
 
@@ -50,10 +50,6 @@ public class StorageLocal extends Thread {
     static ArrayList<Integer> item3;
     static int capacityOfBuffer;
 
-    // Static Semaphore on which the implementation is synchronized.
-    static Semaphore mutex = new Semaphore(1);
-
-
     // Number of times production or consumption happens
     static int count = 0;
 
@@ -68,6 +64,10 @@ public class StorageLocal extends Thread {
         this.itemsThreadCanProduceInOneGo = itemsThreadCanProduceInOneGo;
     }
 
+    /**
+     * Set buffer capacity and send request to server storage to update capacity
+     * @param bufferCapacity capacity of buffer
+     */
     public static void setBufferCapacity(int bufferCapacity) {
         try {
             Socket socket = new Socket(InetAddress.getLocalHost(), port);
@@ -90,9 +90,13 @@ public class StorageLocal extends Thread {
         }
     }
 
+    /**
+     * Run method for threads
+     */
     public void run() {
         // Synchronization for producers
         synchronized (o) {
+            // Produce 11 times
             while (count <= 10) {
                 if (threadName.contains("P")) {
                     produce();
@@ -146,16 +150,24 @@ public class StorageLocal extends Thread {
                 break;
 
         }
+
+        /* Send request to server to update storage */
         try {
 
+            // Allows server to get ready for next request
             sleep(1000);
 
+            // Set sockets and streams
             Socket socket = new Socket(InetAddress.getLocalHost(), port);
 
             PrintWriter printWriter = new PrintWriter(socket.getOutputStream(), true);
+
+            // Write the request
             String write_line = toUpdateServer;
             printWriter.write(write_line);
             System.out.println("Writing : " + write_line);
+
+            // Shut all sockets and streams
             printWriter.close();
 
             socket.close();
@@ -163,6 +175,7 @@ public class StorageLocal extends Thread {
         catch (Exception e) {
             e.printStackTrace();
         }
+
         count++;
         System.out.println(count + ". " + threadName + " produced item "+ itemToProduce );
     }

@@ -1,5 +1,5 @@
 /**
- * ConsumerProducer.java
+ * Consumer.java
  *
  * Version :
  *          1.0
@@ -23,7 +23,7 @@ import java.util.ArrayList;
  * working:
  * producers can produce 3 different items, consumer can consume only when certain number of items are present,
  * in this instance 2 of item1 5 of item2 3 of item3. In one go.
- * Used one single semaphore to maintain the working of the producer and consumer, resulting that no two threads can work simultaneously
+ * Sychronized on static object to ensure that one consumer completes before other starts
  */
 
 
@@ -36,14 +36,7 @@ public class Consumer extends Thread {
     final String threadName;
 
     // array list to store the items which would accessed by producer and consumer
-    static ArrayList<Integer> item1;
-    static ArrayList<Integer> item2;
-    static ArrayList<Integer> item3;
     static int capacityOfBuffer;
-
-    // Static Semaphore on which the implementation is synchronized.
-    static Semaphore mutex = new Semaphore(1);
-
 
     // Number of times production or consumption happens
     static int count = 0;
@@ -51,23 +44,31 @@ public class Consumer extends Thread {
     /**
      * Constructor
      * @param threadName String with C or P indicating Consumer or Producer
-     * @param itemsThreadCanProduceInOneGo number of items to produce or consume at a time
      */
 
     public Consumer(String threadName) {
         this.threadName = threadName;
     }
 
+    /**
+     * Function to send request to Server to consume items
+     */
     public void consume() {
         try {
+            // Allows server to get ready to accept next request
             sleep(1000);
 
+            // Set sockets and streams
             Socket socket = new Socket(InetAddress.getLocalHost(), port);
 
             PrintWriter printWriter = new PrintWriter(socket.getOutputStream(), true);
+
+            // Write the request
             String write_line = threadName;
             printWriter.write(write_line);
             System.out.println("Writing : " + write_line);
+
+            // Close all sockets and streams
             printWriter.close();
 
             socket.close();
@@ -78,7 +79,11 @@ public class Consumer extends Thread {
         }
     }
 
+    /**
+     * Run method for threads.
+     */
     public void run() {
+        // Synchronized for consumers
         synchronized (o) {
             while (count <= 10) {
                 if (threadName.contains("C")) {
@@ -168,7 +173,7 @@ public class Consumer extends Thread {
         StorageLocal.item2 = new ArrayList<>(capacityOfBuffer);
         StorageLocal.item3 = new ArrayList<>(capacityOfBuffer);
 
-        // Create producers
+        // Create consumers
         Consumer consumers[] = new Consumer[num_consumers];
 
         for (int consumerCount = 0; consumerCount < num_consumers; consumerCount++) {
@@ -180,7 +185,7 @@ public class Consumer extends Thread {
 
 
 
-        // Start all producers
+        // Start all consumers
         for (int consumerCount = 0; consumerCount < num_consumers; consumerCount++) {
             consumers[consumerCount].start();
         }
