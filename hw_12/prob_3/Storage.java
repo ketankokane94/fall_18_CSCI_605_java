@@ -156,6 +156,11 @@ public class Storage extends Thread {
     public static void main(String args[]) {
         //while (true) {
             try {
+
+                //Scanner sc  = new Scanner(System.in);
+                //System.out.print("Port number : ");
+                //port = sc.nextInt();
+
                 serverSocket = new ServerSocket(port);
                 Socket socket = serverSocket.accept();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));

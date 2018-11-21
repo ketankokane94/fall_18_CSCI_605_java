@@ -93,15 +93,16 @@ public class StorageLocal extends Thread {
     public void run() {
         // Synchronization for producers
         synchronized (o) {
-            if (threadName.contains("P")) {
+            while (count <= 10) {
+                if (threadName.contains("P")) {
                     produce();
                     o.notifyAll();
                     try {
                         o.wait();
-                    }
-                    catch (InterruptedException ie) {
+                    } catch (InterruptedException ie) {
                         ie.printStackTrace();
                     }
+                }
             }
         }
     }

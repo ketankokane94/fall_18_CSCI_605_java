@@ -71,6 +71,7 @@ public class Consumer extends Thread {
             printWriter.close();
 
             socket.close();
+            count++;
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -79,14 +80,15 @@ public class Consumer extends Thread {
 
     public void run() {
         synchronized (o) {
-            if (threadName.contains("C")) {
-                consume();
-                o.notifyAll();
-                try {
-                    o.wait();
-                }
-                catch (InterruptedException ie) {
-                    ie.printStackTrace();
+            while (count <= 10) {
+                if (threadName.contains("C")) {
+                    consume();
+                    o.notifyAll();
+                    try {
+                        o.wait();
+                    } catch (InterruptedException ie) {
+                        ie.printStackTrace();
+                    }
                 }
             }
         }
