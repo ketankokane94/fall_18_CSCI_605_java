@@ -19,7 +19,6 @@ public class Helper extends Thread {
             out = new PrintWriter(client.getOutputStream());
             sleep(10000);
             out.println(Quotes.get(new Random().nextInt(Quotes.size())));
-            //System.out.println(Quotes.get(((int)Math.random()) % Quotes.size()));
             out.close();
         } catch (IOException e) {
             e.printStackTrace();
