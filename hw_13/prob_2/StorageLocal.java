@@ -71,7 +71,9 @@ public class StorageLocal extends Thread {
      */
     public static void setBufferCapacity(int bufferCapacity) {
         try {
-            ConsumerProducerInterface consumerProducerObject = (ConsumerProducerInterface) Naming.lookup("//10.181.94.174/capacityObject");
+            String ipAddress = InetAddress.getLocalHost().getHostAddress();
+
+            ConsumerProducerInterface consumerProducerObject = (ConsumerProducerInterface) Naming.lookup("//" + ipAddress + "/capacityObject");
 
             capacityOfBuffer = consumerProducerObject.updateCapacity(bufferCapacity);
 
@@ -137,7 +139,9 @@ public class StorageLocal extends Thread {
         /* Send request to server to update storage */
         try {
 
-            ConsumerProducerInterface produceObject = (ConsumerProducerInterface) Naming.lookup("//10.181.94.174/producerObject");
+            String ipAddress = InetAddress.getLocalHost().getHostAddress();
+
+            ConsumerProducerInterface produceObject = (ConsumerProducerInterface) Naming.lookup("//" + ipAddress + "/producerObject");
             String success = produceObject.consumeProduce(toUpdateServer);
 
             // Add only if server updated successfully.

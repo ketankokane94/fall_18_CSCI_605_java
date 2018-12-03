@@ -205,17 +205,21 @@ public class Storage extends Thread {
      */
     public static void main(String args[]) {
         //while (true) {
+        String ipAddress = "";
+
             try {
 
                 //Scanner sc  = new Scanner(System.in);
                 //System.out.print("Port number : ");
                 //port = sc.nextInt();
 
+                ipAddress = InetAddress.getLocalHost().getHostAddress();
+
                 /* Get the capacity from producer at the start over RMI call to updateCapacity */
 
                 // Object for capacity update
                 ConsumerProducerInterface storageObject = new ConsumerProducerImplementation();
-                Naming.rebind("//10.181.94.174/capacityObject", storageObject);
+                Naming.rebind("//" + ipAddress + "/capacityObject", storageObject);
 
                 sleep(1000);
 
@@ -243,11 +247,11 @@ public class Storage extends Thread {
 
             // Object for producer
             ConsumerProducerInterface producerObject = new ConsumerProducerImplementation();
-            Naming.rebind("//10.181.94.174/producerObject", producerObject);
+            Naming.rebind("//" + ipAddress + "/producerObject", producerObject);
 
             // Object for consumer
             ConsumerProducerInterface consumerObject = new ConsumerProducerImplementation();
-            Naming.rebind("//10.181.94.174/consumerObject", consumerObject);
+            Naming.rebind("//" + ipAddress + "/consumerObject", consumerObject);
 
         }
         catch (Exception e) {

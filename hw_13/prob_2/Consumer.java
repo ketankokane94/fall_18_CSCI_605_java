@@ -57,11 +57,13 @@ public class Consumer extends Thread {
     public void consume() {
         try {
 
-            ConsumerProducerInterface consumerObject = (ConsumerProducerInterface) Naming.lookup("//10.181.94.174/consumerObject");
+            String ipAddress = InetAddress.getLocalHost().getHostAddress();
+
+            ConsumerProducerInterface consumerObject = (ConsumerProducerInterface) Naming.lookup("//" + ipAddress + "/consumerObject");
             String success = consumerObject.consumeProduce(threadName);
 
             if (success.equalsIgnoreCase("Success")) {
-
+                System.out.println(threadName + " consumed!");
                 count++;
             }
         }
